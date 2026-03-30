@@ -4,7 +4,7 @@ if (game:GetService("CoreGui")):FindFirstChild("DivineHub") and (game:GetService
 end;
 _G.Primary = Color3.fromRGB(100, 100, 100);
 _G.Dark = Color3.fromRGB(22, 22, 26);
-_G.Third = Color3.fromRGB(255, 0, 0);
+_G.Third = Color3.fromRGB(0, 0, 255);
 function CreateRounded(Parent, Size)
 	local Rounded = Instance.new("UICorner");
 	Rounded.Name = "Rounded";
@@ -96,6 +96,7 @@ ImageButton.MouseButton1Click:Connect(function()
     clickSound:Play()
     pulsando = true
     pulseStart = tick()
+
     local hub = game.CoreGui:FindFirstChild("DivineHub")
     if hub then
         hub.Enabled = not hub.Enabled
@@ -107,9 +108,9 @@ task.spawn(function()
     while true do
         local now = tick()
         h = (h + 0.015) % 1
-        stroke.Color = Color3.fromHSV(h, 1, 1)        
+        stroke.Color = Color3.fromHSV(h, 1, 1)
 
-        if pulsando then
+if pulsando then
             local t = now - pulseStart
             if t <= pulseDuration then
                 local formula = math.sin((t / pulseDuration) * math.pi)
@@ -119,12 +120,10 @@ task.spawn(function()
                 OutlineButton.Size = normalSize
             end
         end
-        task.wait(0.01)
+
+task.wait(0.01)
     end
 end)
-ImageButton.MouseButton1Click:connect(function()
-	(game.CoreGui:FindFirstChild("DivineHub")).Enabled = not (game.CoreGui:FindFirstChild("DivineHub")).Enabled;
-end);
 
 local NotificationFrame = Instance.new("ScreenGui");
 NotificationFrame.Name = "NotificationFrame";
@@ -132,7 +131,7 @@ NotificationFrame.Parent = game.CoreGui;
 NotificationFrame.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 local NotificationList = {};
 local function RemoveOldestNotification()
-	if #NotificationList > 0 then
+	if NotificationList > 0 then
 		local removed = table.remove(NotificationList, 1);
 		removed[1]:TweenPosition(UDim2.new(0.5, 0, -0.2, 0), "Out", "Quad", 0.4, true, function()
 			removed[1]:Destroy();
@@ -141,7 +140,7 @@ local function RemoveOldestNotification()
 end;
 spawn(function()
 	while wait() do
-		if #NotificationList > 0 then
+		if NotificationList > 0 then
 			wait(2);
 			RemoveOldestNotification();
 		end;
@@ -200,7 +199,7 @@ function Update:Notify(desc)
 	Desc.TextXAlignment = Enum.TextXAlignment.Left;
 	CreateRounded(Frame, 10);
 	CreateRounded(OutlineFrame, 12);
-	OutlineFrame:TweenPosition(UDim2.new(0.5, 0, 0.1 + (#NotificationList) * 0.1, 0), "Out", "Quad", 0.4, true);
+	OutlineFrame:TweenPosition(UDim2.new(0.5, 0, 0.1 + (NotificationList) * 0.1, 0), "Out", "Quad", 0.4, true);
 	table.insert(NotificationList, {
 		OutlineFrame,
 		title

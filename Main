@@ -1449,6 +1449,8 @@ function DevLib:CreateWindow(options)
     return WindowObj
 end
 
+return DevLib
+
 DevLib.Icons = {
 		["accessibility"] = "rbxassetid://10709751939",
 		["activity"] = "rbxassetid://10709752035",

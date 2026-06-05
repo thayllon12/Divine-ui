@@ -1,8 +1,11 @@
+--=============================================================================
+-- DIVINE UI LIBRARY - BUILD 5.0.0 (DEV EDITION MAXIMUM RED TEAM ☠️)
+-- CORRIGIDA, EXPANDIDA E BLINDADA CONTRA QUALQUER ERRO!
+--=============================================================================
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local TeleportService = game:GetService("TeleportService")
@@ -13,11 +16,9 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local RequestFunc = (syn and syn.request) or (http and http.request) or http_request or request or fluxus and fluxus.request
 
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local RequestFunc = (syn and syn.request) or (http and http.request) or http_request or request or fluxus and fluxus.request
-
--- [ INÍCIO DO CÓDIGO BLINDADO DA GUI ] --
+--=============================================================================
+-- 🛡️ GUI TARGET BLINDADO
+--=============================================================================
 local GUI_TARGET = nil
 pcall(function()
     local target = (gethui and gethui()) or game:GetService("CoreGui")
@@ -28,23 +29,27 @@ pcall(function()
 end)
 
 if not GUI_TARGET then
-    GUI_TARGET = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    GUI_TARGET = LocalPlayer:WaitForChild("PlayerGui")
 end
--- [ FIM DO CÓDIGO BLINDADO DA GUI ] --
 
--- Configuração Base
+--=============================================================================
+-- ⚙️ CONFIGURAÇÃO BASE
+--=============================================================================
 local DevLib = {
-    Version = "1.0 beta",
+    Version = "1.0 Beta",
     Options = {},
     Flags = {},
     Configs = {},
     Connections = {},
     Instances = {},
-    SaveName = "UI_Save"
+    SaveName = "DivineUI_Save",
+    IsResizing = false
 }
 
+--=============================================================================
+-- 🎨 TEMAS ABSURDOS E VARIADOS
+--=============================================================================
 DevLib.Themes = {
-    -- Temas Escuros e Clássicos
     Dark = {
         MainBackground = Color3.fromRGB(15, 15, 15),
         WindowBackground = Color3.fromRGB(20, 20, 20),
@@ -135,8 +140,6 @@ DevLib.Themes = {
         Error = Color3.fromRGB(231, 76, 60),
         Info = Color3.fromRGB(52, 152, 219)
     },
-    
-    -- Neon e Cyberpunk
     NeonCyber = {
         MainBackground = Color3.fromRGB(10, 5, 15),
         WindowBackground = Color3.fromRGB(15, 10, 25),
@@ -200,7 +203,7 @@ DevLib.Themes = {
         ElementPress = Color3.fromRGB(20, 20, 20),
         StrokeColor = Color3.fromRGB(60, 60, 60),
         StrokeHover = Color3.fromRGB(255, 255, 255),
-        Accent = Color3.fromRGB(255, 0, 0), 
+        Accent = Color3.fromRGB(255, 0, 0),
         Text = Color3.fromRGB(255, 255, 255),
         SubText = Color3.fromRGB(170, 170, 170),
         Shadow = Color3.fromRGB(0, 0, 0),
@@ -209,8 +212,6 @@ DevLib.Themes = {
         Error = Color3.fromRGB(255, 0, 0),
         Info = Color3.fromRGB(0, 255, 255)
     },
-
-    -- Tons de Azul e Água
     Aqua = {
         MainBackground = Color3.fromRGB(15, 25, 30),
         WindowBackground = Color3.fromRGB(20, 35, 40),
@@ -283,8 +284,6 @@ DevLib.Themes = {
         Error = Color3.fromRGB(240, 50, 50),
         Info = Color3.fromRGB(50, 160, 255)
     },
-
-    -- Tons de Roxo e Rosa
     Amethyst = {
         MainBackground = Color3.fromRGB(20, 15, 25),
         WindowBackground = Color3.fromRGB(30, 20, 40),
@@ -411,8 +410,6 @@ DevLib.Themes = {
         Error = Color3.fromRGB(240, 80, 100),
         Info = Color3.fromRGB(90, 180, 255)
     },
-
-    -- Outras Cores de Destaque
     Emerald = {
         MainBackground = Color3.fromRGB(10, 20, 15),
         WindowBackground = Color3.fromRGB(15, 30, 20),
@@ -522,7 +519,7 @@ DevLib.Themes = {
         Info = Color3.fromRGB(80, 160, 240)
     },
 
-    -- O MEU TEMA (TEMA DEV SUPREMO)
+    -- O TEMA SUPREMO DEV
     DEV = {
         MainBackground = Color3.fromRGB(5, 0, 0),
         WindowBackground = Color3.fromRGB(12, 0, 0),
@@ -593,6 +590,8 @@ local function MakeDraggable(dragPart, targetPart)
     local dragStartConn, dragChangeConn, inputChangeConn
 
     dragStartConn = dragPart.InputBegan:Connect(function(input)
+        if DevLib.IsResizing then return end
+        
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             mousePos = input.Position
@@ -713,9 +712,9 @@ function DevLib:Notify(options)
     if type(options) ~= "table" then options = {} end
     local title = options.Title or "Notification"
     local content = options.Content or ""
-    local subContent = options.SubContent or ""
     local duration = options.Duration or 5
     local theme = DevLib:GetTheme()
+    local timeLeft = duration
 
     if not DevLib.NotificationGui then
         DevLib.NotificationGui = Create("ScreenGui", {
@@ -761,6 +760,7 @@ function DevLib:Notify(options)
     
     Create("UICorner", { Parent = notifFrame, CornerRadius = UDim.new(0, 8) })
     Create("UIStroke", { Parent = notifFrame, Color = theme.StrokeColor, Thickness = 1 })
+    
     Create("UIPadding", {
         Parent = notifFrame,
         PaddingTop = UDim.new(0, 15),
@@ -769,11 +769,11 @@ function DevLib:Notify(options)
         PaddingRight = UDim.new(0, 15)
     })
     
-    Create("TextLabel", {
+    local TitleLabel = Create("TextLabel", {
         Name = "Title",
         Parent = notifFrame,
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 20),
+        Size = UDim2.new(1, -60, 0, 20),
         Font = Enum.Font.GothamBold,
         Text = title,
         TextColor3 = theme.Text,
@@ -782,10 +782,32 @@ function DevLib:Notify(options)
         ZIndex = 1001
     })
     
-    local fullText = content
-    if subContent ~= "" then
-        fullText = fullText .. "\n" .. subContent
-    end
+    local CloseBtn = Create("TextButton", {
+        Parent = notifFrame,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, 0, 0, -5),
+        AnchorPoint = Vector2.new(1, 0),
+        Text = "X",
+        Font = Enum.Font.GothamBold,
+        TextColor3 = theme.SubText,
+        TextSize = 14,
+        ZIndex = 1002
+    })
+    
+    local TimeLabel = Create("TextLabel", {
+        Parent = notifFrame,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 40, 0, 20),
+        Position = UDim2.new(1, -25, 0, -5),
+        AnchorPoint = Vector2.new(1, 0),
+        Text = "[" .. tostring(duration) .. "s]",
+        Font = Enum.Font.Gotham,
+        TextColor3 = theme.Accent,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        ZIndex = 1002
+    })
     
     Create("TextLabel", {
         Name = "Content",
@@ -795,12 +817,29 @@ function DevLib:Notify(options)
         Position = UDim2.new(0, 0, 0, 25),
         AutomaticSize = Enum.AutomaticSize.Y,
         Font = Enum.Font.Gotham,
-        Text = fullText,
+        Text = content,
         TextColor3 = theme.SubText,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextWrapped = true,
         ZIndex = 1001
+    })
+    
+    local ProgBG = Create("Frame", {
+        Parent = notifFrame,
+        BackgroundColor3 = theme.TabBackground,
+        Size = UDim2.new(1, 30, 0, 3),
+        Position = UDim2.new(0, -15, 1, 12),
+        ZIndex = 1002,
+        BorderSizePixel = 0
+    })
+    
+    local ProgBar = Create("Frame", {
+        Parent = ProgBG,
+        BackgroundColor3 = theme.Accent,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 1003,
+        BorderSizePixel = 0
     })
 
     task.defer(function()
@@ -812,36 +851,59 @@ function DevLib:Notify(options)
         end
     end)
 
-    if duration then
-        task.delay(duration, function()
-            if notifFrame and notifFrame.Parent then
-                local sizeY = notifFrame.AbsoluteSize.Y
-                local t = Tween(notifFrame, { Size = UDim2.new(0, 0, 0, sizeY), BackgroundTransparency = 1 }, 0.4, Enum.EasingStyle.Quad)
-                if t then
-                    t.Completed:Connect(function()
-                        notifFrame:Destroy()
-                    end)
-                end
+    local loopConn
+    local function endNotification()
+        if loopConn then loopConn:Disconnect() end
+        if notifFrame and notifFrame.Parent then
+            local sizeY = notifFrame.AbsoluteSize.Y
+            local t = Tween(notifFrame, { Size = UDim2.new(0, 0, 0, sizeY), BackgroundTransparency = 1 }, 0.4, Enum.EasingStyle.Quad)
+            if t then
+                t.Completed:Connect(function()
+                    notifFrame:Destroy()
+                end)
             end
-        end)
+        end
     end
+
+    CloseBtn.MouseButton1Click:Connect(endNotification)
+
+    loopConn = RunService.RenderStepped:Connect(function(dt)
+        timeLeft = timeLeft - dt
+        if timeLeft <= 0 then
+            timeLeft = 0
+            endNotification()
+            return
+        end
+        if TimeLabel and TimeLabel.Parent then
+            TimeLabel.Text = "[" .. tostring(math.ceil(timeLeft)) .. "s]"
+        end
+        if ProgBar and ProgBar.Parent then
+            ProgBar.Size = UDim2.new(timeLeft / duration, 0, 1, 0)
+        end
+    end)
 end
 
 --=============================================================================
--- 🖥️ INICIALIZAÇÃO DA JANELA
+-- 🖥️ INICIALIZAÇÃO DA JANELA (O MONSTRO)
 --=============================================================================
 function DevLib:CreateWindow(options)
     if type(options) ~= "table" then options = {} end
     
     local windowTitle = options.Title or "DevLib"
     local windowSubTitle = options.SubTitle or "Edition"
-    local windowSize = options.Size or UDim2.fromOffset(580, 460)
+    local windowSize = options.Size or UDim2.fromOffset(600, 450)
     local themeName = options.Theme or "DEV"
     local useAcrylic = options.Acrylic == nil and true or options.Acrylic
     local minimizeKey = options.MinimizeKey or Enum.KeyCode.RightControl
     local tabWidth = options.TabWidth or 160
     local keySystem = options.KeySystem or false
     local keySettings = options.KeySettings or {}
+
+    -- Limites de Redimensionamento
+    local minWidth = options.MinWidth or 400
+    local minHeight = options.MinHeight or 300
+    local maxWidth = options.MaxWidth or 1600
+    local maxHeight = options.MaxHeight or 1200
 
     DevLib:SetTheme(themeName)
     local theme = DevLib:GetTheme()
@@ -862,15 +924,21 @@ function DevLib:CreateWindow(options)
         })
         table.insert(DevLib.Instances, Blur)
     end
+    
+    local currentWidth = windowSize.X.Offset
+    local currentHeight = windowSize.Y.Offset
+    local viewSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+    local startX = (viewSize.X - currentWidth) / 2
+    local startY = (viewSize.Y - currentHeight) / 2
 
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
         Parent = ScreenGui,
         BackgroundColor3 = theme.MainBackground,
         BackgroundTransparency = useAcrylic and 0.15 or 0,
-        Size = UDim2.fromScale(0, 0),
-        Position = UDim2.fromScale(0.5, 0.5),
-        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(0, currentWidth, 0, currentHeight),
+        Position = UDim2.new(0, startX, 0, startY),
+        AnchorPoint = Vector2.new(0, 0),
         ClipsDescendants = true,
         ZIndex = 1,
         Visible = false
@@ -895,7 +963,6 @@ function DevLib:CreateWindow(options)
 
     local function OpenMainUI()
         MainFrame.Visible = true
-        Tween(MainFrame, { Size = windowSize }, 0.5, Enum.EasingStyle.Exponential)
         if useAcrylic and Blur then
             Tween(Blur, { Size = 15 }, 0.5)
         end
@@ -1075,14 +1142,61 @@ function DevLib:CreateWindow(options)
     })
 
     TitleLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-        SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 25, 0, 0)
+        SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 15, 0, 0)
     end)
     
     task.defer(function()
         if TitleLabel and TitleLabel.Parent then
-            SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 25, 0, 0)
+            SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 15, 0, 0)
         end
     end)
+
+    -- BOTÕES DA BARRA SUPERIOR (Minimize, Expand, Settings, Close)
+    local ControlBtns = Create("Frame", {
+        Parent = Topbar,
+        Size = UDim2.new(0, 160, 1, 0),
+        Position = UDim2.new(1, -160, 0, 0),
+        BackgroundTransparency = 1,
+        ZIndex = 5
+    })
+    
+    Create("UIListLayout", {
+        Parent = ControlBtns,
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Right,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 8)
+    })
+    Create("UIPadding", { Parent = ControlBtns, PaddingRight = UDim.new(0, 15) })
+
+    local function createTopBtn(text, hoverColor)
+        local btn = Create("TextButton", {
+            Parent = ControlBtns,
+            Size = UDim2.new(0, 24, 0, 24),
+            BackgroundColor3 = theme.ElementBackground,
+            Text = text,
+            TextColor3 = theme.Text,
+            Font = Enum.Font.GothamBold,
+            TextSize = 14,
+            AutoButtonColor = false,
+            ZIndex = 6
+        })
+        Create("UICorner", { Parent = btn, CornerRadius = UDim.new(0, 6) })
+        Create("UIStroke", { Parent = btn, Color = theme.StrokeColor, Thickness = 1 })
+        
+        btn.MouseEnter:Connect(function()
+            Tween(btn, {TextColor3 = hoverColor}, 0.2)
+        end)
+        btn.MouseLeave:Connect(function()
+            Tween(btn, {TextColor3 = theme.Text}, 0.2)
+        end)
+        return btn
+    end
+
+    local btnMin = createTopBtn("-", theme.Accent)
+    local btnExp = createTopBtn("□", theme.Success)
+    local btnSet = createTopBtn("⚙", theme.Warning)
+    local btnClose = createTopBtn("X", theme.Error)
 
     local Sidebar = Create("Frame", {
         Name = "Sidebar",
@@ -1134,7 +1248,7 @@ function DevLib:CreateWindow(options)
         Gui = ScreenGui,
         Main = MainFrame,
         Blur = Blur,
-        OriginalSize = windowSize,
+        OriginalSize = UDim2.new(0, currentWidth, 0, currentHeight),
         IsMinimized = false
     }
 
@@ -1271,27 +1385,65 @@ function DevLib:CreateWindow(options)
         Tween(DialogFrame, { Size = UDim2.new(0, 340, 0, 180) }, 0.4, Enum.EasingStyle.Back)
     end
 
+    -- FUNÇÕES DOS BOTÕES SUPERIORES
     function WindowObj:Minimize()
         self.IsMinimized = true
-        Tween(MainFrame, { Size = UDim2.fromScale(0, 0), BackgroundTransparency = 1 }, 0.5, Enum.EasingStyle.Exponential)
+        Tween(MainFrame, { Size = UDim2.new(0, currentWidth, 0, 45) }, 0.4, Enum.EasingStyle.Exponential)
         if useAcrylic and Blur then
-            Tween(Blur, { Size = 0 }, 0.5)
+            Tween(Blur, { Size = 0 }, 0.4)
         end
-        task.delay(0.5, function()
-            if self.IsMinimized and MainFrame then
-                MainFrame.Visible = false
-            end
-        end)
     end
 
     function WindowObj:Maximize()
         self.IsMinimized = false
-        MainFrame.Visible = true
-        Tween(MainFrame, { Size = self.OriginalSize, BackgroundTransparency = useAcrylic and 0.15 or 0 }, 0.5, Enum.EasingStyle.Exponential)
+        Tween(MainFrame, { Size = UDim2.new(0, currentWidth, 0, currentHeight) }, 0.4, Enum.EasingStyle.Exponential)
         if useAcrylic and Blur then
-            Tween(Blur, { Size = 15 }, 0.5)
+            Tween(Blur, { Size = 15 }, 0.4)
         end
     end
+
+    btnMin.MouseButton1Click:Connect(function()
+        if WindowObj.IsMinimized then
+            WindowObj:Maximize()
+        else
+            WindowObj:Minimize()
+        end
+    end)
+
+    local isExpanded = false
+    local preExpandWidth = currentWidth
+    btnExp.MouseButton1Click:Connect(function()
+        isExpanded = not isExpanded
+        if isExpanded then
+            preExpandWidth = currentWidth
+            currentWidth = math.min(currentWidth + 300, maxWidth)
+            Tween(MainFrame, { Size = UDim2.new(0, currentWidth, 0, currentHeight) }, 0.3, Enum.EasingStyle.Exponential)
+        else
+            currentWidth = preExpandWidth
+            Tween(MainFrame, { Size = UDim2.new(0, currentWidth, 0, currentHeight) }, 0.3, Enum.EasingStyle.Exponential)
+        end
+    end)
+
+    btnSet.MouseButton1Click:Connect(function()
+        for _, t in pairs(WindowObj.Tabs) do
+            local n = string.lower(t.Name)
+            if string.find(n, "setting") or string.find(n, "config") or string.find(n, "setings") then
+                WindowObj:SelectTab(t)
+                break
+            end
+        end
+    end)
+
+    btnClose.MouseButton1Click:Connect(function()
+        WindowObj:Dialog({
+            Title = "Deseja fechar?",
+            Content = "Essa ação irá destruir completamente a interface. Tem certeza?",
+            Buttons = {
+                { Title = "Cancelar", Callback = function() end },
+                { Title = "OK", Callback = function() WindowObj:Destroy() end }
+            }
+        })
+    end)
 
     local minimConn = UserInputService.InputBegan:Connect(function(input, gpe)
         if not gpe and input.KeyCode == minimizeKey then
@@ -1304,44 +1456,89 @@ function DevLib:CreateWindow(options)
     end)
     table.insert(DevLib.Connections, minimConn)
 
-    function WindowObj:AddMinimizeButton(minOptions)
-        if type(minOptions) ~= "table" then minOptions = {} end
-        local minSize = minOptions.Size or UDim2.fromOffset(40, 40)
-        local minPos = minOptions.Position or UDim2.new(1, -60, 1, -60)
-        local minVisible = minOptions.Visible == nil and true or minOptions.Visible
-        local minText = minOptions.Text or "DEV"
-
-        local MinGui = Create("ScreenGui", {
-            Parent = GUI_TARGET,
-            ResetOnSpawn = false
+    --=============================================================================
+    -- 🔲 SISTEMA DE RESIZE MANUAL (BORDAS E CANTOS)
+    --=============================================================================
+    local grabThick = 8
+    local function createResizeHandle(name, size, pos)
+        local h = Create("TextButton", {
+            Name = name,
+            Parent = MainFrame,
+            Size = size,
+            Position = pos,
+            BackgroundTransparency = 1,
+            Text = "",
+            ZIndex = 100,
+            Active = true
         })
-        table.insert(DevLib.Instances, MinGui)
+        return h
+    end
 
-        local FloatingBtn = Create("TextButton", {
-            Parent = MinGui,
-            Size = minSize,
-            Position = minPos,
-            BackgroundColor3 = theme.ElementBackground,
-            Text = minText,
-            Font = Enum.Font.GothamBold,
-            TextColor3 = theme.Text,
-            AutoButtonColor = false,
-            Visible = minVisible
-        })
-        
-        Create("UICorner", { Parent = FloatingBtn, CornerRadius = UDim.new(0, 20) })
-        Create("UIStroke", { Parent = FloatingBtn, Color = theme.StrokeColor, Thickness = 2 })
+    local handles = {
+        Top = createResizeHandle("ResizeTop", UDim2.new(1, -grabThick*2, 0, grabThick), UDim2.new(0, grabThick, 0, 0)),
+        Bottom = createResizeHandle("ResizeBottom", UDim2.new(1, -grabThick*2, 0, grabThick), UDim2.new(0, grabThick, 1, -grabThick)),
+        Left = createResizeHandle("ResizeLeft", UDim2.new(0, grabThick, 1, -grabThick*2), UDim2.new(0, 0, 0, grabThick)),
+        Right = createResizeHandle("ResizeRight", UDim2.new(0, grabThick, 1, -grabThick*2), UDim2.new(1, -grabThick, 0, grabThick)),
+        TopLeft = createResizeHandle("ResizeTopLeft", UDim2.new(0, grabThick, 0, grabThick), UDim2.new(0, 0, 0, 0)),
+        TopRight = createResizeHandle("ResizeTopRight", UDim2.new(0, grabThick, 0, grabThick), UDim2.new(1, -grabThick, 0, 0)),
+        BottomLeft = createResizeHandle("ResizeBottomLeft", UDim2.new(0, grabThick, 0, grabThick), UDim2.new(0, 0, 1, -grabThick)),
+        BottomRight = createResizeHandle("ResizeBottomRight", UDim2.new(0, grabThick, 0, grabThick), UDim2.new(1, -grabThick, 1, -grabThick))
+    }
 
-        MakeDraggable(FloatingBtn, FloatingBtn)
+    local resType = ""
+    local resStartSize, resStartPos, resStartMouse
 
-        FloatingBtn.MouseButton1Click:Connect(function()
-            if MainFrame.Visible then
-                WindowObj:Minimize()
-            else
-                WindowObj:Maximize()
+    for edge, btn in pairs(handles) do
+        local hc = btn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                DevLib.IsResizing = true
+                resType = edge
+                resStartSize = MainFrame.AbsoluteSize
+                resStartPos = MainFrame.AbsolutePosition
+                resStartMouse = input.Position
             end
         end)
+        table.insert(DevLib.Connections, hc)
     end
+
+    local hEnd = UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            resType = ""
+            DevLib.IsResizing = false
+        end
+    end)
+    table.insert(DevLib.Connections, hEnd)
+
+    local hChg = UserInputService.InputChanged:Connect(function(input)
+        if resType ~= "" and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            if WindowObj.IsMinimized then return end
+            
+            local delta = input.Position - resStartMouse
+            local nW, nH = resStartSize.X, resStartSize.Y
+            local nX, nY = resStartPos.X, resStartPos.Y
+
+            if string.find(resType, "Right") then
+                nW = math.clamp(resStartSize.X + delta.X, minWidth, maxWidth)
+            elseif string.find(resType, "Left") then
+                nW = math.clamp(resStartSize.X - delta.X, minWidth, maxWidth)
+                nX = resStartPos.X + (resStartSize.X - nW)
+            end
+
+            if string.find(resType, "Bottom") then
+                nH = math.clamp(resStartSize.Y + delta.Y, minHeight, maxHeight)
+            elseif string.find(resType, "Top") then
+                nH = math.clamp(resStartSize.Y - delta.Y, minHeight, maxHeight)
+                nY = resStartPos.Y + (resStartSize.Y - nH)
+            end
+
+            currentWidth = nW
+            currentHeight = nH
+            MainFrame.Size = UDim2.new(0, nW, 0, nH)
+            MainFrame.Position = UDim2.new(0, nX, 0, nY)
+            WindowObj.OriginalSize = UDim2.new(0, nW, 0, nH)
+        end
+    end)
+    table.insert(DevLib.Connections, hChg)
 
     function WindowObj:SelectTab(TabObj)
         WindowObj.ActiveTab = TabObj
@@ -1486,8 +1683,9 @@ function DevLib:CreateWindow(options)
             
             local SecObj = {}
             function SecObj:SetText(newTitle)
-                if SecFrame:FindFirstChildWhichIsA("TextLabel") then
-                    SecFrame:FindFirstChildWhichIsA("TextLabel").Text = tostring(newTitle)
+                local l = SecFrame:FindFirstChildWhichIsA("TextLabel")
+                if l then
+                    l.Text = tostring(newTitle)
                 end
             end
             return SecObj
@@ -1877,7 +2075,7 @@ function DevLib:CreateWindow(options)
                 SldObj:SetValue(min + ((max - min) * pct))
             end
             
-            SliderBg.InputBegan:Connect(function(i)
+            local hc1 = SliderBg.InputBegan:Connect(function(i)
                 if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                     dragging = true
                     Tween(SliderCirc, {Size=UDim2.new(0,16,0,16)}, 0.2)
@@ -1885,21 +2083,22 @@ function DevLib:CreateWindow(options)
                 end
             end)
             
-            local conn1 = UserInputService.InputEnded:Connect(function(i)
+            local hc2 = UserInputService.InputEnded:Connect(function(i)
                 if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                     dragging = false
                     Tween(SliderCirc, {Size=UDim2.new(0,12,0,12)}, 0.2)
                 end
             end)
             
-            local conn2 = UserInputService.InputChanged:Connect(function(i)
+            local hc3 = UserInputService.InputChanged:Connect(function(i)
                 if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
                     update(i)
                 end
             end)
             
-            table.insert(DevLib.Connections, conn1)
-            table.insert(DevLib.Connections, conn2)
+            table.insert(DevLib.Connections, hc1)
+            table.insert(DevLib.Connections, hc2)
+            table.insert(DevLib.Connections, hc3)
 
             DevLib.Flags[id] = val
             DevLib.Options[id] = SldObj
@@ -2296,48 +2495,73 @@ function DevLib:CreateWindow(options)
 
             local ds, dh, dt = false, false, false
             
-            SatVal.InputBegan:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then ds = true end
-            end)
+            local function performSat(i)
+                local pos = SatVal.AbsolutePosition
+                local size = SatVal.AbsoluteSize
+                s = math.clamp((i.Position.X - pos.X)/size.X, 0, 1)
+                v = 1 - math.clamp((i.Position.Y - pos.Y)/size.Y, 0, 1)
+                updateVis()
+            end
             
-            Hue.InputBegan:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then dh = true end
-            end)
+            local function performHue(i)
+                local pos = Hue.AbsolutePosition
+                local size = Hue.AbsoluteSize
+                h = 1 - math.clamp((i.Position.Y - pos.Y)/size.Y, 0, 1)
+                updateVis()
+            end
             
-            if hasTransp then
-                TranspSlider.InputBegan:Connect(function(i)
-                    if i.UserInputType == Enum.UserInputType.MouseButton1 then dt = true end
-                end)
+            local function performTransp(i)
+                local pos = TranspSlider.AbsolutePosition
+                local size = TranspSlider.AbsoluteSize
+                transp = math.clamp((i.Position.X - pos.X)/size.X, 0, 1)
+                updateVis()
             end
 
-            local conn1 = UserInputService.InputEnded:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            local hc1 = SatVal.InputBegan:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+                    ds = true
+                    performSat(i)
+                end
+            end)
+            
+            local hc2 = Hue.InputBegan:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+                    dh = true
+                    performHue(i)
+                end
+            end)
+            
+            local hc3
+            if hasTransp then
+                hc3 = TranspSlider.InputBegan:Connect(function(i)
+                    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+                        dt = true
+                        performTransp(i)
+                    end
+                end)
+                table.insert(DevLib.Connections, hc3)
+            end
+
+            local hc4 = UserInputService.InputEnded:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                     ds = false
                     dh = false
                     dt = false
                 end
             end)
             
-            local conn2 = UserInputService.InputChanged:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseMovement then
-                    if ds then
-                        s = math.clamp((i.Position.X - SatVal.AbsolutePosition.X)/SatVal.AbsoluteSize.X,0,1)
-                        v = 1 - math.clamp((i.Position.Y - SatVal.AbsolutePosition.Y)/SatVal.AbsoluteSize.Y,0,1)
-                        updateVis()
-                    end
-                    if dh then
-                        h = 1 - math.clamp((i.Position.Y - Hue.AbsolutePosition.Y)/Hue.AbsoluteSize.Y,0,1)
-                        updateVis()
-                    end
-                    if dt and hasTransp then
-                        transp = math.clamp((i.Position.X - TranspSlider.AbsolutePosition.X)/TranspSlider.AbsoluteSize.X,0,1)
-                        updateVis()
-                    end
+            local hc5 = UserInputService.InputChanged:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+                    if ds then performSat(i) end
+                    if dh then performHue(i) end
+                    if dt and hasTransp then performTransp(i) end
                 end
             end)
             
-            table.insert(DevLib.Connections, conn1)
-            table.insert(DevLib.Connections, conn2)
+            table.insert(DevLib.Connections, hc1)
+            table.insert(DevLib.Connections, hc2)
+            table.insert(DevLib.Connections, hc4)
+            table.insert(DevLib.Connections, hc5)
 
             CpBtn.MouseButton1Click:Connect(function()
                 isOpen = not isOpen
@@ -3700,7 +3924,7 @@ function DevLib:CreateWindow(options)
             TabObj:AddButton({
                 Title="Trigger Test Notification",
                 Callback=function()
-                    DevLib:Notify({Title="Center", Content="Notification Center working perfectly!"})
+                    DevLib:Notify({Title="Center", Content="Notification Center working perfectly!", Duration = 5})
                 end
             })
         end
@@ -3719,6 +3943,9 @@ function DevLib:CreateWindow(options)
                             WindowObj:Maximize()
                         end
                     })
+                    pcall(function()
+                        cp.Parent = F.Container
+                    end)
                 end
             end
         end

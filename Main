@@ -13,6 +13,25 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local RequestFunc = (syn and syn.request) or (http and http.request) or http_request or request or fluxus and fluxus.request
 
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local RequestFunc = (syn and syn.request) or (http and http.request) or http_request or request or fluxus and fluxus.request
+
+-- [ INÍCIO DO CÓDIGO BLINDADO DA GUI ] --
+local GUI_TARGET = nil
+pcall(function()
+    local target = (gethui and gethui()) or game:GetService("CoreGui")
+    local test = Instance.new("ScreenGui")
+    test.Parent = target
+    test:Destroy()
+    GUI_TARGET = target
+end)
+
+if not GUI_TARGET then
+    GUI_TARGET = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+end
+-- [ FIM DO CÓDIGO BLINDADO DA GUI ] --
+
 -- Configuração Base
 local DevLib = {
     Version = "1.0 beta",

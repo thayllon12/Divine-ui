@@ -909,7 +909,10 @@ local nX = (vSize.X - MainFrame.Size.X.Offset) / 2
 local nY = (vSize.Y - MainFrame.Size.Y.Offset) / 2
 Tween(MainFrame, {Position = UDim2.new(0, nX, 0, nY)}, 0.3, Enum.EasingStyle.Exponential)
 else
-if MainFrame.Visible then WindowObj:Minimize() else WindowObj:Maximize() end
+MainFrame.Visible = not MainFrame.Visible
+if useAcrylic and Blur then
+Tween(Blur, {Size = MainFrame.Visible and 15 or 0}, 0.3)
+end
 end
 lastClick = now
 end)
@@ -1455,7 +1458,7 @@ TextSize = 14,
 TextXAlignment = Enum.TextXAlignment.Left,
 ZIndex = 5
 })
-Create("TextLabel", {
+local LblDesc = Create("TextLabel", {
 Parent = PFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, 0, 0, 0),
@@ -1469,6 +1472,9 @@ TextWrapped = true,
 RichText = true,
 ZIndex = 5
 })
+local PObj = {}
+function PObj:SetDesc(txt) LblDesc.Text = txt end
+return PObj
 end
 function TabObj:AddButton(options)
 if type(options) ~= "table" then options = {} end
@@ -1507,8 +1513,9 @@ Image = DevLib:GetIcon("mouse-pointer-click") ~= "" and DevLib:GetIcon("mouse-po
 ImageColor3 = theme.SubText,
 ZIndex = 5
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = BtnFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -40, 0, 15),
@@ -1536,6 +1543,9 @@ BtnFrame.MouseButton1Up:Connect(function()
 Tween(BtnFrame, { BackgroundColor3 = theme.ElementHover }, 0.1)
 pcall(cb)
 end)
+local BtnObj = {}
+function BtnObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
+return BtnObj
 end
 function TabObj:AddToggle(id, options)
 id, options = getId(id, options)
@@ -1565,8 +1575,9 @@ TextSize = 14,
 TextXAlignment = Enum.TextXAlignment.Left,
 ZIndex = 5
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = TglFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -80, 0, 15),
@@ -1625,6 +1636,7 @@ end
 function TglObj:OnChanged(newCb)
 changeCb = newCb
 end
+function TglObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 TglFrame.MouseButton1Click:Connect(function()
 TglObj:SetValue(not state)
 end)
@@ -1673,8 +1685,9 @@ TextSize = 14,
 TextXAlignment = Enum.TextXAlignment.Right,
 ZIndex = 5
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = SldFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -80, 0, 15),
@@ -1729,6 +1742,7 @@ end
 function SldObj:OnChanged(newCb)
 changeCb = newCb
 end
+function SldObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 local dragging = false
 local function update(input)
 local sizeX = SliderBg.AbsoluteSize.X
@@ -1821,8 +1835,9 @@ Image = DevLib:GetIcon("chevron-down") ~= "" and DevLib:GetIcon("chevron-down") 
 ImageColor3 = theme.SubText,
 ZIndex = 6
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = DdBtn,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -120, 0, 15),
@@ -1932,6 +1947,7 @@ end
 function DdObj:OnChanged(newCb)
 changeCb = newCb
 end
+function DdObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 DdBtn.MouseButton1Click:Connect(function()
 isOpen = not isOpen
 Tween(DdFrame, {Size = isOpen and UDim2.new(1, 0, 0, (desc=="" and 42 or 55) + 130) or UDim2.new(1, 0, 0, desc=="" and 42 or 55)}, 0.3, Enum.EasingStyle.Exponential)
@@ -1993,8 +2009,9 @@ ZIndex = 6
 })
 Create("UICorner", { Parent = DispColor, CornerRadius = UDim.new(0, 4) })
 Create("UIStroke", { Parent = DispColor, Color = theme.StrokeColor, Thickness = 1 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = CpBtn,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -80, 0, 15),
@@ -2156,6 +2173,7 @@ end
 function CpObj:OnChanged(newCb)
 changeCb = newCb
 end
+function CpObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 local ds, dh, dt = false, false, false
 local function performSat(i)
 local pos = SatVal.AbsolutePosition
@@ -2256,8 +2274,9 @@ TextSize = 14,
 TextXAlignment = Enum.TextXAlignment.Left,
 ZIndex = 5
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = KbFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(1, -120, 0, 15),
@@ -2304,6 +2323,7 @@ end
 function KbObj:GetState() return self.State end
 function KbObj:OnClick(c) clickCb = c end
 function KbObj:OnChanged(c) changeCb = c end
+function KbObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 BindBtn.MouseButton1Click:Connect(function()
 binding = true
 BindBtn.Text = "..."
@@ -2373,8 +2393,9 @@ TextSize = 14,
 TextXAlignment = Enum.TextXAlignment.Left,
 ZIndex = 5
 })
+local DescLbl
 if desc ~= "" then
-Create("TextLabel", {
+DescLbl = Create("TextLabel", {
 Parent = InpFrame,
 BackgroundTransparency = 1,
 Size = UDim2.new(0.4, 0, 0, 15),
@@ -2416,6 +2437,7 @@ end
 function InpObj:OnChanged(newCb)
 changeCb = newCb
 end
+function InpObj:SetDesc(txt) if DescLbl then DescLbl.Text = txt end end
 local function handleInput()
 local txt = TextBox.Text
 if numeric and not tonumber(txt) and txt ~= "" then

@@ -28,7 +28,7 @@ Flags = {},
 Configs = {},
 Connections = {},
 Instances = {},
-ThemeObjects = {},
+ThemeObjects = setmetatable({}, {__mode = "k"}),
 SaveName = "DivineUI_Save",
 IsResizing = false
 }

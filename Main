@@ -514,8 +514,10 @@ local minWidth = options.MinWidth or 400
 local minHeight = options.MinHeight or 300
 local maxWidth = options.MaxWidth or 1600
 local maxHeight = options.MaxHeight or 1200
-DevLib:SetTheme(themeName)
-local theme = DevLib:GetTheme()
+if DevLib.Themes[themeName] then
+DevLib.CurrentTheme = themeName
+end
+local theme = DevLib.Themes[DevLib.CurrentTheme] or DevLib.Themes["DEV"]
 local ScreenGui = Create("ScreenGui", {
 Name = "DevLibWindow",
 Parent = GUI_TARGET,

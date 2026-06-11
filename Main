@@ -949,12 +949,10 @@ local visible = options.Visible == nil and true or options.Visible
 local draggable = options.Draggable == nil and true or options.Draggable
 local bgColor = options.BackgroundColor or options.Color or theme.ElementBackground
 local bgTrans = options.BackgroundTransparency or options.Transparency or 0
-local txtColor = options.TextColor or theme.Text
 local txtTrans = options.TextTransparency or 0
 local font = options.Font or Enum.Font.GothamBold
 local txtSize = options.TextSize or 14
 local image = options.Image or ""
-local imgColor = options.ImageColor or Color3.new(1,1,1)
 local imgTrans = options.ImageTransparency or 0
 local radius = options.CornerRadius or 8
 local strokeColor = options.StrokeColor or theme.StrokeColor
@@ -965,18 +963,23 @@ table.insert(DevLib.Instances, MinGui)
 local btn = Create("TextButton", {
 Parent = MinGui, Size = size, Position = pos, AnchorPoint = anchor,
 BackgroundColor3 = bgColor, BackgroundTransparency = bgTrans,
-Text = image == "" and text or "", TextColor3 = txtColor, TextTransparency = txtTrans,
+Text = image == "" and text or "", TextTransparency = txtTrans,
 Font = font, TextSize = txtSize, Visible = visible, AutoButtonColor = false,
 ClipsDescendants = true
 })
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+if DevLib.ThemeObjects[btn] then DevLib.ThemeObjects[btn]["TextColor3"] = nil end
+
 Create("UICorner", {Parent = btn, CornerRadius = UDim.new(0, radius)})
 Create("UIStroke", {Parent = btn, Color = strokeColor, Thickness = strokeThick, Transparency = strokeTrans})
 if image ~= "" then
-Create("ImageLabel", {
-Parent = btn, BackgroundTransparency = 1, Size = UDim2.fromScale(0.6, 0.6),
-Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5),
-Image = image, ImageColor3 = imgColor, ImageTransparency = imgTrans
+local imgLbl = Create("ImageLabel", {
+Parent = btn, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0),
+Position = UDim2.new(0, 0, 0, 0), AnchorPoint = Vector2.new(0, 0),
+Image = image, ImageTransparency = imgTrans
 })
+imgLbl.ImageColor3 = Color3.fromRGB(255, 255, 255)
+if DevLib.ThemeObjects[imgLbl] then DevLib.ThemeObjects[imgLbl]["ImageColor3"] = nil end
 end
 if draggable then MakeDraggable(btn, btn) end
 local lastClick = 0

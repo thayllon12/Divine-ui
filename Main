@@ -22,19 +22,34 @@ if not GUI_TARGET then
 GUI_TARGET = LocalPlayer:WaitForChild("PlayerGui")
 end
 local DevLib = {
-Version = "6.0.0 DEV-EDITION",
+Version = "6.1.0 SUPREME",
 Options = {},
 Flags = {},
 Configs = {},
 Connections = {},
 Instances = {},
 ThemeObjects = setmetatable({}, {__mode = "k"}),
-SaveName = "DivineUI_Save",
+SaveName = "DevLib_Config",
 IsResizing = false
 }
+local function MakeThemeUnique(themeTable)
+local seen = {}
+local newTheme = {}
+for k, v in pairs(themeTable) do
+local r, g, b = math.floor(v.R*255), math.floor(v.G*255), math.floor(v.B*255)
+local cStr = r..","..g..","..b
+while seen[cStr] do
+if r < 255 then r = r + 1 else r = r - 1 end
+cStr = r..","..g..","..b
+end
+seen[cStr] = true
+newTheme[k] = Color3.fromRGB(r, g, b)
+end
+return newTheme
+end
 local function GenerateThemes()
 local t = {}
-t.DEV = {
+t.DEV = MakeThemeUnique({
 MainBackground = Color3.fromRGB(5, 0, 0),
 WindowBackground = Color3.fromRGB(12, 0, 0),
 TabBackground = Color3.fromRGB(18, 0, 0),
@@ -51,8 +66,98 @@ Success = Color3.fromRGB(0, 255, 0),
 Warning = Color3.fromRGB(255, 200, 0),
 Error = Color3.fromRGB(255, 0, 0),
 Info = Color3.fromRGB(0, 150, 255)
-}
-t.Dark = {
+})
+t.BloodRain = MakeThemeUnique({
+MainBackground = Color3.fromRGB(15, 0, 0),
+WindowBackground = Color3.fromRGB(20, 0, 0),
+TabBackground = Color3.fromRGB(25, 0, 0),
+ElementBackground = Color3.fromRGB(35, 5, 5),
+ElementHover = Color3.fromRGB(50, 10, 10),
+ElementPress = Color3.fromRGB(20, 0, 0),
+StrokeColor = Color3.fromRGB(60, 0, 0),
+StrokeHover = Color3.fromRGB(100, 0, 0),
+Accent = Color3.fromRGB(255, 0, 0),
+Text = Color3.fromRGB(255, 230, 230),
+SubText = Color3.fromRGB(200, 100, 100),
+Shadow = Color3.fromRGB(0, 0, 0),
+Success = Color3.fromRGB(0, 255, 0),
+Warning = Color3.fromRGB(255, 200, 0),
+Error = Color3.fromRGB(255, 0, 0),
+Info = Color3.fromRGB(0, 150, 255)
+})
+t.Cyberpunk = MakeThemeUnique({
+MainBackground = Color3.fromRGB(13, 2, 33),
+WindowBackground = Color3.fromRGB(18, 5, 45),
+TabBackground = Color3.fromRGB(25, 10, 60),
+ElementBackground = Color3.fromRGB(35, 15, 80),
+ElementHover = Color3.fromRGB(50, 20, 100),
+ElementPress = Color3.fromRGB(18, 5, 45),
+StrokeColor = Color3.fromRGB(60, 20, 100),
+StrokeHover = Color3.fromRGB(0, 255, 255),
+Accent = Color3.fromRGB(255, 0, 128),
+Text = Color3.fromRGB(255, 255, 255),
+SubText = Color3.fromRGB(0, 255, 255),
+Shadow = Color3.fromRGB(0, 0, 0),
+Success = Color3.fromRGB(0, 255, 0),
+Warning = Color3.fromRGB(255, 255, 0),
+Error = Color3.fromRGB(255, 0, 0),
+Info = Color3.fromRGB(0, 255, 255)
+})
+t.Toxic = MakeThemeUnique({
+MainBackground = Color3.fromRGB(5, 15, 5),
+WindowBackground = Color3.fromRGB(10, 20, 10),
+TabBackground = Color3.fromRGB(15, 25, 15),
+ElementBackground = Color3.fromRGB(20, 35, 20),
+ElementHover = Color3.fromRGB(30, 50, 30),
+ElementPress = Color3.fromRGB(10, 20, 10),
+StrokeColor = Color3.fromRGB(30, 60, 30),
+StrokeHover = Color3.fromRGB(50, 100, 50),
+Accent = Color3.fromRGB(0, 255, 100),
+Text = Color3.fromRGB(230, 255, 230),
+SubText = Color3.fromRGB(100, 200, 100),
+Shadow = Color3.fromRGB(0, 10, 0),
+Success = Color3.fromRGB(0, 255, 0),
+Warning = Color3.fromRGB(255, 200, 0),
+Error = Color3.fromRGB(255, 0, 0),
+Info = Color3.fromRGB(0, 150, 255)
+})
+t.Miami = MakeThemeUnique({
+MainBackground = Color3.fromRGB(20, 5, 20),
+WindowBackground = Color3.fromRGB(30, 10, 30),
+TabBackground = Color3.fromRGB(40, 15, 40),
+ElementBackground = Color3.fromRGB(50, 20, 50),
+ElementHover = Color3.fromRGB(70, 30, 70),
+ElementPress = Color3.fromRGB(30, 10, 30),
+StrokeColor = Color3.fromRGB(80, 30, 80),
+StrokeHover = Color3.fromRGB(0, 255, 255),
+Accent = Color3.fromRGB(255, 0, 255),
+Text = Color3.fromRGB(255, 230, 255),
+SubText = Color3.fromRGB(0, 255, 255),
+Shadow = Color3.fromRGB(10, 0, 10),
+Success = Color3.fromRGB(0, 255, 150),
+Warning = Color3.fromRGB(255, 255, 0),
+Error = Color3.fromRGB(255, 0, 50),
+Info = Color3.fromRGB(0, 255, 255)
+})
+t.Synapse = MakeThemeUnique({
+MainBackground = Color3.fromRGB(30, 30, 30),
+WindowBackground = Color3.fromRGB(40, 40, 40),
+TabBackground = Color3.fromRGB(45, 45, 45),
+ElementBackground = Color3.fromRGB(55, 55, 55),
+ElementHover = Color3.fromRGB(70, 70, 70),
+ElementPress = Color3.fromRGB(35, 35, 35),
+StrokeColor = Color3.fromRGB(80, 80, 80),
+StrokeHover = Color3.fromRGB(255, 120, 0),
+Accent = Color3.fromRGB(255, 100, 0),
+Text = Color3.fromRGB(255, 255, 255),
+SubText = Color3.fromRGB(180, 180, 180),
+Shadow = Color3.fromRGB(10, 10, 10),
+Success = Color3.fromRGB(0, 255, 0),
+Warning = Color3.fromRGB(255, 200, 0),
+Error = Color3.fromRGB(255, 50, 50),
+Info = Color3.fromRGB(50, 150, 255)
+})
+t.Dark = MakeThemeUnique({
 MainBackground = Color3.fromRGB(15, 15, 15),
 WindowBackground = Color3.fromRGB(20, 20, 20),
 TabBackground = Color3.fromRGB(25, 25, 25),
@@ -69,8 +174,8 @@ Success = Color3.fromRGB(46, 204, 113),
 Warning = Color3.fromRGB(241, 196, 15),
 Error = Color3.fromRGB(231, 76, 60),
 Info = Color3.fromRGB(52, 152, 219)
-}
-t.Light = {
+})
+t.Light = MakeThemeUnique({
 MainBackground = Color3.fromRGB(245, 245, 245),
 WindowBackground = Color3.fromRGB(255, 255, 255),
 TabBackground = Color3.fromRGB(250, 250, 250),
@@ -87,105 +192,14 @@ Success = Color3.fromRGB(39, 174, 96),
 Warning = Color3.fromRGB(243, 156, 18),
 Error = Color3.fromRGB(192, 57, 43),
 Info = Color3.fromRGB(41, 128, 185)
-}
-t.DeepOcean = {
-MainBackground = Color3.fromRGB(5, 10, 20),
-WindowBackground = Color3.fromRGB(10, 15, 30),
-TabBackground = Color3.fromRGB(15, 25, 40),
-ElementBackground = Color3.fromRGB(20, 35, 55),
-ElementHover = Color3.fromRGB(30, 50, 75),
-ElementPress = Color3.fromRGB(10, 15, 25),
-StrokeColor = Color3.fromRGB(35, 50, 75),
-StrokeHover = Color3.fromRGB(50, 80, 120),
-Accent = Color3.fromRGB(0, 120, 255),
-Text = Color3.fromRGB(200, 230, 255),
-SubText = Color3.fromRGB(100, 150, 200),
-Shadow = Color3.fromRGB(0, 0, 10),
-Success = Color3.fromRGB(40, 200, 100),
-Warning = Color3.fromRGB(240, 180, 20),
-Error = Color3.fromRGB(220, 50, 50),
-Info = Color3.fromRGB(60, 140, 230)
-}
-t.NeonCyber = {
-MainBackground = Color3.fromRGB(10, 5, 15),
-WindowBackground = Color3.fromRGB(15, 10, 25),
-TabBackground = Color3.fromRGB(20, 15, 35),
-ElementBackground = Color3.fromRGB(25, 20, 45),
-ElementHover = Color3.fromRGB(35, 25, 65),
-ElementPress = Color3.fromRGB(10, 5, 20),
-StrokeColor = Color3.fromRGB(50, 30, 80),
-StrokeHover = Color3.fromRGB(0, 255, 255),
-Accent = Color3.fromRGB(255, 0, 255),
-Text = Color3.fromRGB(255, 255, 255),
-SubText = Color3.fromRGB(0, 255, 255),
-Shadow = Color3.fromRGB(255, 0, 255),
-Success = Color3.fromRGB(0, 255, 150),
-Warning = Color3.fromRGB(255, 255, 0),
-Error = Color3.fromRGB(255, 0, 50),
-Info = Color3.fromRGB(0, 255, 255)
-}
-local colors = {
-{"AmberGlow", 255, 160, 0}, {"MidnightBlue", 90, 130, 255}, {"RoyalBlue", 0, 80, 255},
-{"DeepViolet", 140, 50, 255}, {"CosmicViolet", 180, 80, 255}, {"GalaxyPurple", 200, 50, 255},
-{"Rose", 255, 80, 120}, {"Sakura", 255, 150, 180}, {"CottonCandy", 150, 200, 255},
-{"PearlWhite", 120, 130, 140}, {"AshGray", 150, 150, 160}, {"Charcoal", 150, 160, 170},
-{"AMOLED", 255, 255, 255}, {"Cyberpunk", 255, 0, 128}, {"Matrix", 0, 255, 0},
-{"Synthwave", 255, 0, 255}, {"Vaporwave", 0, 255, 255}, {"Outrun", 255, 128, 0},
-{"Dracula", 255, 121, 198}, {"Monokai", 166, 226, 46}, {"SolarizedDark", 38, 139, 210},
-{"SolarizedLight", 42, 161, 152}, {"Nord", 136, 192, 208}, {"OceanicNext", 95, 179, 179},
-{"MaterialDark", 128, 203, 196}, {"MaterialLight", 0, 150, 136}, {"GruvboxDark", 254, 128, 25},
-{"GruvboxLight", 214, 93, 14}, {"TokyoNight", 122, 162, 247}, {"Catppuccin", 245, 194, 231},
-{"RosePine", 235, 188, 186}, {"AyuDark", 255, 204, 102}, {"AyuLight", 255, 153, 64},
-{"AyuMirage", 255, 204, 102}, {"Palenight", 199, 146, 234}, {"DraculaSoft", 255, 106, 186},
-{"Cobalt2", 255, 198, 0}, {"WinterIsComing", 130, 170, 255}, {"NightOwl", 130, 170, 255},
-{"HighContrast", 255, 255, 0}, {"Hacker", 0, 255, 0}, {"Terminal", 0, 200, 0},
-{"Abyss", 100, 100, 255}, {"Inferno", 255, 50, 0}, {"Forest", 34, 139, 34},
-{"Ocean", 0, 105, 148}, {"Desert", 237, 201, 175}, {"Tundra", 200, 220, 255},
-{"Volcano", 255, 69, 0}, {"Swamp", 85, 107, 47}, {"Jungle", 46, 139, 87},
-{"Space", 25, 25, 112}, {"Moon", 211, 211, 211}, {"Sun", 255, 215, 0},
-{"Star", 255, 250, 205}, {"Galaxy", 138, 43, 226}, {"Nebula", 255, 105, 180},
-{"Comet", 176, 224, 230}, {"Meteor", 169, 169, 169}, {"Asteroid", 128, 128, 128},
-{"Planet", 0, 250, 154}, {"Earth", 0, 0, 255}, {"Mars", 255, 0, 0},
-{"Jupiter", 255, 165, 0}, {"Saturn", 218, 165, 32}, {"Uranus", 0, 255, 255},
-{"Neptune", 0, 0, 128}, {"Pluto", 221, 160, 221}, {"Void", 0, 0, 0},
-{"LightSpeed", 255, 255, 255}, {"Warp", 0, 255, 127}, {"Quantum", 147, 112, 219},
-{"Atomic", 255, 20, 147}, {"Molecular", 123, 104, 238}, {"Cellular", 152, 251, 152},
-{"Viral", 50, 205, 50}, {"Bacterial", 173, 255, 47}, {"Fungal", 139, 69, 19},
-{"Parasitic", 128, 0, 128}, {"Symbiotic", 255, 192, 203}, {"Predator", 178, 34, 34},
-{"Prey", 240, 230, 140}, {"Hunter", 0, 100, 0}, {"Gatherer", 210, 180, 140},
-{"Nomad", 205, 133, 63}, {"Settler", 160, 82, 45}, {"Builder", 244, 164, 96},
-{"Creator", 255, 228, 181}, {"Destroyer", 139, 0, 0}, {"Preserver", 0, 255, 255},
-{"Observer", 192, 192, 192}, {"Participant", 255, 218, 185}
-}
-for i, data in ipairs(colors) do
-local name = data[1]
-local r, g, b = data[2], data[3], data[4]
-t[name] = {
-MainBackground = Color3.fromRGB(math.clamp(r-200,10,25), math.clamp(g-200,10,25), math.clamp(b-200,10,25)),
-WindowBackground = Color3.fromRGB(math.clamp(r-190,15,30), math.clamp(g-190,15,30), math.clamp(b-190,15,30)),
-TabBackground = Color3.fromRGB(math.clamp(r-180,20,35), math.clamp(g-180,20,35), math.clamp(b-180,20,35)),
-ElementBackground = Color3.fromRGB(math.clamp(r-170,25,40), math.clamp(g-170,25,40), math.clamp(b-170,25,40)),
-ElementHover = Color3.fromRGB(math.clamp(r-150,35,50), math.clamp(g-150,35,50), math.clamp(b-150,35,50)),
-ElementPress = Color3.fromRGB(math.clamp(r-210,5,15), math.clamp(g-210,5,15), math.clamp(b-210,5,15)),
-StrokeColor = Color3.fromRGB(math.clamp(r-140,40,60), math.clamp(g-140,40,60), math.clamp(b-140,40,60)),
-StrokeHover = Color3.fromRGB(math.clamp(r-100,60,100), math.clamp(g-100,60,100), math.clamp(b-100,60,100)),
-Accent = Color3.fromRGB(r, g, b),
-Text = Color3.fromRGB(240, 240, 240),
-SubText = Color3.fromRGB(160, 160, 160),
-Shadow = Color3.fromRGB(0, 0, 0),
-Success = Color3.fromRGB(46, 204, 113),
-Warning = Color3.fromRGB(241, 196, 15),
-Error = Color3.fromRGB(231, 76, 60),
-Info = Color3.fromRGB(52, 152, 219)
-}
-end
+})
 return t
 end
 DevLib.Themes = GenerateThemes()
 DevLib.Themes["Custom"] = DevLib.Themes["DEV"]
 DevLib.CurrentTheme = "DEV"
 function DevLib:GetTheme()
-return DevLib.Themes[DevLib.CurrentTheme]
+return DevLib.Themes[DevLib.CurrentTheme] or DevLib.Themes["DEV"]
 end
 local function GetThemeKey(color)
 for k, v in pairs(DevLib:GetTheme()) do
@@ -301,6 +315,9 @@ if string.find(name, "rbxassetid") then return name end
 if DevLib.Icons["lucide-" .. name] then return DevLib.Icons["lucide-" .. name] end
 if DevLib.Icons[name] then return DevLib.Icons[name] end
 return ""
+end
+function DevLib:SetTheme(name)
+DevLib:ApplyTheme(name)
 end
 function DevLib:SendWebhook(url, embedData)
 if not RequestFunc then return end
@@ -517,7 +534,7 @@ local maxHeight = options.MaxHeight or 1200
 if DevLib.Themes[themeName] then
 DevLib.CurrentTheme = themeName
 end
-local theme = DevLib.Themes[DevLib.CurrentTheme] or DevLib.Themes["DEV"]
+local theme = DevLib:GetTheme()
 local ScreenGui = Create("ScreenGui", {
 Name = "DevLibWindow",
 Parent = GUI_TARGET,
@@ -537,7 +554,7 @@ Create("UICorner", {Parent = SafeDragBar, CornerRadius = UDim.new(1,0)})
 local Blur
 if useAcrylic then
 Blur = Create("BlurEffect", {
-Size = 0,
+Size = 15,
 Parent = Lighting
 })
 table.insert(DevLib.Instances, Blur)
@@ -557,7 +574,7 @@ Position = UDim2.new(0, startX, 0, startY),
 AnchorPoint = Vector2.new(0, 0),
 ClipsDescendants = true,
 ZIndex = 1,
-Visible = false
+Visible = true
 })
 MakeDraggable(SafeDragBar, MainFrame)
 Create("UICorner", { Parent = MainFrame, CornerRadius = UDim.new(0, 10) })
@@ -575,6 +592,18 @@ Size = UDim2.new(1, 40, 1, 40),
 Position = UDim2.new(0, -20, 0, -20),
 ZIndex = 0
 })
+if options.Image and options.Image ~= "" then
+local bgImg = Create("ImageLabel", {
+Parent = MainFrame,
+BackgroundTransparency = 1,
+Size = UDim2.new(1, 0, 1, 0),
+Image = options.Image,
+ImageTransparency = options.ImageTransparency or 0,
+ScaleType = Enum.ScaleType.Crop,
+ZIndex = 1
+})
+Create("UICorner", {Parent = bgImg, CornerRadius = UDim.new(0, 10)})
+end
 local function OpenMainUI()
 MainFrame.Visible = true
 if useAcrylic and Blur then
@@ -582,6 +611,8 @@ Tween(Blur, { Size = 15 }, 0.5)
 end
 end
 if keySystem then
+MainFrame.Visible = false
+if Blur then Blur.Size = 0 end
 local validKeys = keySettings.Keys or {"DevLib123"}
 local savedKeyPath = "DevLibKey.txt"
 local hasSavedKey = false
@@ -690,8 +721,6 @@ end)
 end
 end)
 end
-else
-OpenMainUI()
 end
 local Topbar = Create("Frame", {
 Name = "Topbar",
@@ -925,9 +954,9 @@ end
 end
 function WindowObj:Dialog(dlgOptions)
 if type(dlgOptions) ~= "table" then dlgOptions = {} end
-local title = options.Title or "Dialog"
-local content = options.Content or "Content"
-local buttons = options.Buttons or {}
+local title = dlgOptions.Title or "Dialog"
+local content = dlgOptions.Content or "Content"
+local buttons = dlgOptions.Buttons or {}
 local DialogBG = Create("Frame", {
 Parent = ScreenGui,
 BackgroundColor3 = Color3.new(0, 0, 0),
@@ -1078,7 +1107,7 @@ local initHeight = currentHeight
 local initTheme = themeName
 local initTransp = useAcrylic and 0.15 or 0
 local SettingsMenu = Create("Frame", {
-Parent = ScreenGui, Size = UDim2.new(0, 340, 0, 380), Position = UDim2.new(0.5, 0, 0.5, 0),
+Parent = ScreenGui, Size = UDim2.new(0, 340, 0, 420), Position = UDim2.new(0.5, 0, 0.5, 0),
 AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = theme.WindowBackground,
 Visible = false, ZIndex = 3000
 })
@@ -1091,17 +1120,15 @@ SetClose.MouseButton1Click:Connect(function() SettingsMenu.Visible = false end)
 local SetScroll = Create("ScrollingFrame", { Parent = SettingsMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -40), Position = UDim2.new(0, 0, 0, 40), ScrollBarThickness = 2, CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y, ZIndex = 3001 })
 Create("UIListLayout", {Parent = SetScroll, Padding = UDim.new(0, 15), HorizontalAlignment = Enum.HorizontalAlignment.Center})
 Create("UIPadding", {Parent = SetScroll, PaddingTop = UDim.new(0,10), PaddingBottom = UDim.new(0, 15)})
-local function addSetGroup(title)
-local frame = Create("Frame", { Parent = SetScroll, BackgroundColor3 = theme.ElementBackground, Size = UDim2.new(1, -30, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 3002 })
+local function addSetGroup(title, height)
+local frame = Create("Frame", { Parent = SetScroll, BackgroundColor3 = theme.ElementBackground, Size = UDim2.new(1, -30, 0, height), ZIndex = 3002 })
 Create("UICorner", {Parent = frame, CornerRadius = UDim.new(0, 8)})
 Create("UIStroke", {Parent = frame, Color = theme.StrokeColor, Thickness = 1})
-Create("UIListLayout", {Parent = frame, Padding = UDim.new(0, 10)})
-Create("UIPadding", {Parent = frame, PaddingTop = UDim.new(0,10), PaddingBottom = UDim.new(0,10), PaddingLeft = UDim.new(0,10), PaddingRight = UDim.new(0,10)})
-local lbl = Create("TextLabel", { Parent = frame, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 15), Font = Enum.Font.GothamBold, Text = title, TextColor3 = theme.Accent, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3003 })
+Create("TextLabel", { Parent = frame, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 15), Position = UDim2.new(0, 10, 0, 10), Font = Enum.Font.GothamBold, Text = title, TextColor3 = theme.Accent, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3003 })
 return frame
 end
-local ThemeGrp = addSetGroup("Tema Visual")
-local ThemeDdFrame = Create("Frame", { Parent = ThemeGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, 0, 0, 35), ClipsDescendants = true, ZIndex = 3003 })
+local ThemeGrp = addSetGroup("Tema Visual", 80)
+local ThemeDdFrame = Create("Frame", { Parent = ThemeGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 35), ClipsDescendants = true, ZIndex = 3003 })
 Create("UICorner", {Parent = ThemeDdFrame, CornerRadius = UDim.new(0, 6)})
 Create("UIStroke", {Parent = ThemeDdFrame, Color = theme.StrokeColor, Thickness = 1})
 local ThemeDdBtn = Create("TextButton", { Parent = ThemeDdFrame, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 35), Text = "", ZIndex = 3004 })
@@ -1111,7 +1138,8 @@ Create("UIListLayout", {Parent = ThemeDdList, Padding = UDim.new(0,4)})
 local themeDdOpen = false
 ThemeDdBtn.MouseButton1Click:Connect(function()
 themeDdOpen = not themeDdOpen
-Tween(ThemeDdFrame, {Size = themeDdOpen and UDim2.new(1, 0, 0, 145) or UDim2.new(1, 0, 0, 35)}, 0.3, Enum.EasingStyle.Exponential)
+Tween(ThemeDdFrame, {Size = themeDdOpen and UDim2.new(1, -20, 0, 145) or UDim2.new(1, -20, 0, 35)}, 0.3, Enum.EasingStyle.Exponential)
+Tween(ThemeGrp, {Size = themeDdOpen and UDim2.new(1, -30, 0, 190) or UDim2.new(1, -30, 0, 80)}, 0.3, Enum.EasingStyle.Exponential)
 end)
 local sortedThemes = {}
 for k in pairs(DevLib.Themes) do table.insert(sortedThemes, k) end
@@ -1123,11 +1151,14 @@ tBtn.MouseButton1Click:Connect(function()
 DevLib:ApplyTheme(tName)
 ThemeSelLbl.Text = tName
 themeDdOpen = false
-Tween(ThemeDdFrame, {Size = UDim2.new(1, 0, 0, 35)}, 0.3, Enum.EasingStyle.Exponential)
+Tween(ThemeDdFrame, {Size = UDim2.new(1, -20, 0, 35)}, 0.3, Enum.EasingStyle.Exponential)
+Tween(ThemeGrp, {Size = UDim2.new(1, -30, 0, 80)}, 0.3, Enum.EasingStyle.Exponential)
 end)
 end
-local ScaleGrp = addSetGroup("Escala UI")
-local ScaleFrame = Create("Frame", { Parent = ScaleGrp, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 35), ZIndex = 3003 })
+local tpBtn = Create("TextButton", { Parent = ThemeGrp, BackgroundColor3 = theme.Accent, Size = UDim2.new(1, -20, 0, 30), Position = UDim2.new(0, 10, 0, 85), Font = Enum.Font.GothamBold, Text = "Personalizar Cores", TextColor3 = Color3.new(1,1,1), TextSize = 13, ZIndex = 3003, Visible = false })
+Create("UICorner", {Parent = tpBtn, CornerRadius = UDim.new(0,6)})
+local ScaleGrp = addSetGroup("Escala UI", 80)
+local ScaleFrame = Create("Frame", { Parent = ScaleGrp, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 35), ZIndex = 3003 })
 local wBox = Create("TextBox", { Parent = ScaleFrame, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(0.45, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Font = Enum.Font.Gotham, Text = tostring(currentWidth), TextColor3 = theme.Text, TextSize = 13, ZIndex = 3004 })
 Create("UICorner", {Parent = wBox, CornerRadius = UDim.new(0,6)})
 Create("UIStroke", {Parent = wBox, Color = theme.StrokeColor, Thickness = 1})
@@ -1147,8 +1178,8 @@ if not WindowObj.IsMinimized then Tween(MainFrame, {Size = WindowObj.OriginalSiz
 end
 wBox.FocusLost:Connect(applyScale)
 hBox.FocusLost:Connect(applyScale)
-local TranspGrp = addSetGroup("Aparência do Fundo")
-local AcrylBtn = Create("TextButton", { Parent = TranspGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, 0, 0, 35), Text = "", AutoButtonColor = false, ZIndex = 3003 })
+local TranspGrp = addSetGroup("Aparência do Fundo", 115)
+local AcrylBtn = Create("TextButton", { Parent = TranspGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 30), Text = "", AutoButtonColor = false, ZIndex = 3003 })
 Create("UICorner", {Parent = AcrylBtn, CornerRadius = UDim.new(0,6)})
 Create("UIStroke", {Parent = AcrylBtn, Color = theme.StrokeColor, Thickness = 1})
 Create("TextLabel", { Parent = AcrylBtn, BackgroundTransparency = 1, Size = UDim2.new(1, -60, 1, 0), Position = UDim2.new(0, 10, 0, 0), Font = Enum.Font.GothamMedium, Text = "Acrílico (Blur)", TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3004 })
@@ -1156,7 +1187,7 @@ local AcrylSwitch = Create("Frame", { Parent = AcrylBtn, BackgroundColor3 = useA
 Create("UICorner", {Parent = AcrylSwitch, CornerRadius = UDim.new(1,0)})
 local AcrylCirc = Create("Frame", { Parent = AcrylSwitch, BackgroundColor3 = Color3.new(1,1,1), Size = UDim2.new(0, 16, 0, 16), Position = useAcrylic and UDim2.new(1, -19, 0.5, 0) or UDim2.new(0, 3, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 3005 })
 Create("UICorner", {Parent = AcrylCirc, CornerRadius = UDim.new(1,0)})
-local TranspContainer = Create("Frame", { Parent = TranspGrp, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 35), Visible = useAcrylic, ZIndex = 3003 })
+local TranspContainer = Create("Frame", { Parent = TranspGrp, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 70), Visible = useAcrylic, ZIndex = 3003 })
 local TranspValLbl = Create("TextLabel", { Parent = TranspContainer, BackgroundTransparency = 1, Size = UDim2.new(0, 40, 0, 15), Position = UDim2.new(1, -40, 0, 0), Font = Enum.Font.GothamBold, Text = tostring(useAcrylic and 0.15 or 0), TextColor3 = theme.Accent, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 3004 })
 Create("TextLabel", { Parent = TranspContainer, BackgroundTransparency = 1, Size = UDim2.new(1, -40, 0, 15), Font = Enum.Font.GothamMedium, Text = "Opacidade", TextColor3 = theme.SubText, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3004 })
 local TranspBg = Create("TextButton", { Parent = TranspContainer, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, 0, 0, 6), Position = UDim2.new(0, 0, 1, -10), Text="", AutoButtonColor=false, ZIndex = 3004 })
@@ -1192,13 +1223,114 @@ MainFrame.BackgroundTransparency = pct
 TranspValLbl.Text = string.format("%.2f", pct)
 end
 end)
-local ASGrp = addSetGroup("Auto Save")
-local fldBox = Create("TextBox", { Parent = ASGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, 0, 0, 30), Font = Enum.Font.Gotham, Text = DevLib.SaveName, PlaceholderText = "Nome da Pasta/Arquivo...", TextColor3 = theme.Text, TextSize = 13, ZIndex = 3003 })
+local ThemePickerMenu = Create("Frame", {
+Parent = ScreenGui, Size = UDim2.new(0, 400, 0, 300), Position = UDim2.new(0.5, 0, 0.5, 0),
+AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = theme.WindowBackground,
+Visible = false, ZIndex = 4000
+})
+Create("UICorner", {Parent = ThemePickerMenu, CornerRadius = UDim.new(0,10)})
+Create("UIStroke", {Parent = ThemePickerMenu, Color = theme.StrokeColor, Thickness = 1})
+local tpTop = Create("Frame", {Parent = ThemePickerMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), ZIndex = 4001})
+Create("TextLabel", {Parent = tpTop, BackgroundTransparency = 1, Size = UDim2.new(1, -10, 1, 0), Position = UDim2.new(0, 15, 0, 0), Font = Enum.Font.GothamBold, Text = "Editor de Cores", TextColor3 = theme.Text, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 4002})
+local tpContent = Create("Frame", {Parent = ThemePickerMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -70), Position = UDim2.new(0, 0, 0, 30), ZIndex = 4001})
+local tpConfig = Create("Frame", {Parent = tpContent, BackgroundTransparency = 1, Size = UDim2.new(0.5, -15, 1, 0), Position = UDim2.new(0, 10, 0, 0), ZIndex = 4002})
+local tpPreview = Create("Frame", {Parent = tpContent, BackgroundColor3 = theme.MainBackground, Size = UDim2.new(0.5, -15, 1, 0), Position = UDim2.new(0.5, 5, 0, 0), ZIndex = 4002})
+Create("UICorner", {Parent = tpPreview, CornerRadius = UDim.new(0,8)})
+Create("UIStroke", {Parent = tpPreview, Color = theme.StrokeColor, Thickness = 1})
+local miniTop = Create("Frame", {Parent = tpPreview, BackgroundColor3 = theme.WindowBackground, Size = UDim2.new(1, 0, 0, 20), ZIndex = 4003})
+Create("UICorner", {Parent = miniTop, CornerRadius = UDim.new(0,8)})
+local miniAccent = Create("Frame", {Parent = tpPreview, BackgroundColor3 = theme.Accent, Size = UDim2.new(0.8, 0, 0, 25), Position = UDim2.new(0.1, 0, 0.3, 0), ZIndex = 4003})
+Create("UICorner", {Parent = miniAccent, CornerRadius = UDim.new(0,4)})
+local miniTgl = Create("Frame", {Parent = tpPreview, BackgroundColor3 = theme.ElementBackground, Size = UDim2.new(0.8, 0, 0, 25), Position = UDim2.new(0.1, 0, 0.5, 0), ZIndex = 4003})
+Create("UICorner", {Parent = miniTgl, CornerRadius = UDim.new(0,4)})
+local miniTglOn = Create("Frame", {Parent = miniTgl, BackgroundColor3 = theme.Accent, Size = UDim2.new(0, 16, 0, 10), Position = UDim2.new(1, -20, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 4004})
+Create("UICorner", {Parent = miniTglOn, CornerRadius = UDim.new(1,0)})
+local tempAccent = theme.Accent
+local h, s, v = Color3.toHSV(tempAccent)
+local tpSat = Create("TextButton", {Parent = tpConfig, BackgroundColor3 = Color3.fromHSV(h,1,1), Size = UDim2.new(1, -30, 0, 100), Position = UDim2.new(0,0,0,10), Text = "", AutoButtonColor = false, ZIndex = 4003})
+Create("UICorner", {Parent = tpSat, CornerRadius = UDim.new(0,4)})
+Create("UIGradient", {Parent = tpSat, Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(1,1,1)), ColorSequenceKeypoint.new(1, Color3.new(1,1,1))}), Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0), NumberSequenceKeypoint.new(1,1)})})
+local tpSatSh = Create("Frame", {Parent = tpSat, BackgroundColor3 = Color3.new(0,0,0), Size = UDim2.new(1,0,1,0), ZIndex = 4004})
+Create("UICorner", {Parent = tpSatSh, CornerRadius = UDim.new(0,4)})
+Create("UIGradient", {Parent = tpSatSh, Rotation = 90, Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1), NumberSequenceKeypoint.new(1,0)})})
+local tpHue = Create("TextButton", {Parent = tpConfig, Size = UDim2.new(0, 20, 0, 100), Position = UDim2.new(1, -20, 0, 10), Text = "", AutoButtonColor = false, ZIndex = 4003})
+Create("UICorner", {Parent = tpHue, CornerRadius = UDim.new(0,4)})
+Create("UIGradient", {Parent = tpHue, Rotation = 90, Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(1,0,0)), ColorSequenceKeypoint.new(0.16, Color3.new(1,1,0)), ColorSequenceKeypoint.new(0.33, Color3.new(0,1,0)), ColorSequenceKeypoint.new(0.5, Color3.new(0,1,1)), ColorSequenceKeypoint.new(0.66, Color3.new(0,0,1)), ColorSequenceKeypoint.new(0.83, Color3.new(1,0,1)), ColorSequenceKeypoint.new(1, Color3.new(1,0,0))})})
+local tpRGB = Create("Frame", {Parent = tpConfig, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 25), Position = UDim2.new(0, 0, 0, 120), ZIndex = 4003})
+local rBoxC = Create("TextBox", {Parent = tpRGB, Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), BackgroundColor3 = theme.TabBackground, TextColor3 = theme.Text, Font = Enum.Font.Code, TextSize = 13, Text = tostring(math.floor(tempAccent.R*255)), ZIndex = 4004})
+Create("UICorner", {Parent = rBoxC, CornerRadius = UDim.new(0,4)})
+local gBoxC = Create("TextBox", {Parent = tpRGB, Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.35, 0, 0, 0), BackgroundColor3 = theme.TabBackground, TextColor3 = theme.Text, Font = Enum.Font.Code, TextSize = 13, Text = tostring(math.floor(tempAccent.G*255)), ZIndex = 4004})
+Create("UICorner", {Parent = gBoxC, CornerRadius = UDim.new(0,4)})
+local bBoxC = Create("TextBox", {Parent = tpRGB, Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.7, 0, 0, 0), BackgroundColor3 = theme.TabBackground, TextColor3 = theme.Text, Font = Enum.Font.Code, TextSize = 13, Text = tostring(math.floor(tempAccent.B*255)), ZIndex = 4004})
+Create("UICorner", {Parent = bBoxC, CornerRadius = UDim.new(0,4)})
+local function updateMini()
+tempAccent = Color3.fromHSV(h, s, v)
+tpSat.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+rBoxC.Text = tostring(math.floor(tempAccent.R*255))
+gBoxC.Text = tostring(math.floor(tempAccent.G*255))
+bBoxC.Text = tostring(math.floor(tempAccent.B*255))
+miniAccent.BackgroundColor3 = tempAccent
+miniTglOn.BackgroundColor3 = tempAccent
+end
+local dcs, dch = false, false
+tpSat.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dcs = true end end)
+tpHue.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dch = true end end)
+UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dcs = false dch = false end end)
+UserInputService.InputChanged:Connect(function(i)
+if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+if dcs then
+s = math.clamp((i.Position.X - tpSat.AbsolutePosition.X)/tpSat.AbsoluteSize.X, 0, 1)
+v = 1 - math.clamp((i.Position.Y - tpSat.AbsolutePosition.Y)/tpSat.AbsoluteSize.Y, 0, 1)
+updateMini()
+elseif dch then
+h = 1 - math.clamp((i.Position.Y - tpHue.AbsolutePosition.Y)/tpHue.AbsoluteSize.Y, 0, 1)
+updateMini()
+end
+end
+end)
+local function rgbBoxUpdate()
+local cr = math.clamp(tonumber(rBoxC.Text) or 255, 0, 255)
+local cg = math.clamp(tonumber(gBoxC.Text) or 255, 0, 255)
+local cbb = math.clamp(tonumber(bBoxC.Text) or 255, 0, 255)
+tempAccent = Color3.fromRGB(cr, cg, cbb)
+h, s, v = Color3.toHSV(tempAccent)
+updateMini()
+end
+rBoxC.FocusLost:Connect(rgbBoxUpdate)
+gBoxC.FocusLost:Connect(rgbBoxUpdate)
+bBoxC.FocusLost:Connect(rgbBoxUpdate)
+local tpBottom = Create("Frame", {Parent = ThemePickerMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Position = UDim2.new(0, 0, 1, -40), ZIndex = 4001})
+local tpSave = Create("TextButton", {Parent = tpBottom, BackgroundColor3 = theme.Success, Size = UDim2.new(0, 100, 0, 30), Position = UDim2.new(0, 15, 0, 5), Font = Enum.Font.GothamBold, Text = "Salvar", TextColor3 = Color3.new(1,1,1), TextSize = 13, ZIndex = 4002})
+Create("UICorner", {Parent = tpSave, CornerRadius = UDim.new(0,6)})
+local tpCancel = Create("TextButton", {Parent = tpBottom, BackgroundColor3 = theme.ElementBackground, Size = UDim2.new(0, 100, 0, 30), Position = UDim2.new(0, 125, 0, 5), Font = Enum.Font.GothamBold, Text = "Cancelar", TextColor3 = theme.Text, TextSize = 13, ZIndex = 4002})
+Create("UICorner", {Parent = tpCancel, CornerRadius = UDim.new(0,6)})
+tpCancel.MouseButton1Click:Connect(function()
+ThemePickerMenu.Visible = false
+SettingsMenu.Visible = true
+end)
+tpSave.MouseButton1Click:Connect(function()
+local newTheme = {}
+for k, c in pairs(theme) do newTheme[k] = c end
+newTheme.Accent = tempAccent
+DevLib.Themes["Custom"] = newTheme
+DevLib:ApplyTheme("Custom")
+ThemePickerMenu.Visible = false
+SettingsMenu.Visible = true
+end)
+tpBtn.MouseButton1Click:Connect(function()
+SettingsMenu.Visible = false
+ThemePickerMenu.Visible = true
+tempAccent = DevLib:GetTheme().Accent
+h, s, v = Color3.toHSV(tempAccent)
+updateMini()
+end)
+local ASGrp = addSetGroup("Auto Save", 110)
+local fldBox = Create("TextBox", { Parent = ASGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, -20, 0, 30), Position = UDim2.new(0, 10, 0, 30), Font = Enum.Font.Gotham, Text = DevLib.SaveName, PlaceholderText = "Nome da Pasta/Arquivo...", TextColor3 = theme.Text, TextSize = 13, ZIndex = 3003 })
 Create("UICorner", {Parent = fldBox, CornerRadius = UDim.new(0,6)})
 Create("UIStroke", {Parent = fldBox, Color = theme.StrokeColor, Thickness = 1})
 fldBox.FocusLost:Connect(function() DevLib.SaveName = fldBox.Text end)
 local isAutoSave = false
-local asToggle = Create("TextButton", { Parent = ASGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, 0, 0, 35), Text = "", AutoButtonColor = false, ZIndex = 3003 })
+local asToggle = Create("TextButton", { Parent = ASGrp, BackgroundColor3 = theme.TabBackground, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 65), Text = "", AutoButtonColor = false, ZIndex = 3003 })
 Create("UICorner", {Parent = asToggle, CornerRadius = UDim.new(0,6)})
 Create("UIStroke", {Parent = asToggle, Color = theme.StrokeColor, Thickness = 1})
 local asLbl = Create("TextLabel", { Parent = asToggle, BackgroundTransparency = 1, Size = UDim2.new(1, -60, 1, 0), Position = UDim2.new(0, 10, 0, 0), Font = Enum.Font.GothamMedium, Text = "Auto Save", TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3004 })
@@ -1216,8 +1348,8 @@ while task.wait(10) do
 if isAutoSave then DevLib:SaveConfig(fldBox.Text) end
 end
 end)
-local RstGrp = addSetGroup("Ações")
-local RstBtn = Create("TextButton", { Parent = RstGrp, BackgroundColor3 = theme.Error, Size = UDim2.new(1, 0, 0, 35), Font = Enum.Font.GothamBold, Text = "Restaurar Padrões", TextColor3 = Color3.new(1,1,1), TextSize = 13, ZIndex = 3003 })
+local RstGrp = addSetGroup("Ações", 80)
+local RstBtn = Create("TextButton", { Parent = RstGrp, BackgroundColor3 = theme.Error, Size = UDim2.new(1, -20, 0, 35), Position = UDim2.new(0, 10, 0, 35), Font = Enum.Font.GothamBold, Text = "Restaurar Padrões", TextColor3 = Color3.new(1,1,1), TextSize = 13, ZIndex = 3003 })
 Create("UICorner", {Parent = RstBtn, CornerRadius = UDim.new(0,6)})
 RstBtn.MouseButton1Click:Connect(function()
 WindowObj:Dialog({
@@ -1246,9 +1378,9 @@ end}
 }
 })
 end)
-local InfoGrp = addSetGroup("Informações da DevLib")
+local InfoGrp = addSetGroup("Informações da DevLib", 135)
 local infoTxt = "DevLib " .. DevLib.Version .. "\n\nCriador: Thayllon\nTema Atual: " .. DevLib.CurrentTheme .. "\nAuto Save: Desativado\nTamanho: " .. currentWidth .. "x" .. currentHeight
-local InfoLbl = Create("TextLabel", { Parent = InfoGrp, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 90), Font = Enum.Font.Code, Text = infoTxt, TextColor3 = theme.SubText, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 3003 })
+local InfoLbl = Create("TextLabel", { Parent = InfoGrp, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 90), Position = UDim2.new(0, 10, 0, 35), Font = Enum.Font.Code, Text = infoTxt, TextColor3 = theme.SubText, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 3003 })
 task.spawn(function()
 while task.wait(1) do
 if InfoLbl.Parent then

@@ -22,7 +22,7 @@ if not GUI_TARGET then
 GUI_TARGET = LocalPlayer:WaitForChild("PlayerGui")
 end
 local DevLib = {
-Version = "6.2.0 SUPREME",
+Version = "6.3.0 ULTIMATE",
 Options = {},
 Flags = {},
 Configs = {},
@@ -33,6 +33,16 @@ SaveName = "DevLib_Config",
 IsResizing = false,
 _InternalThemeUpdate = nil
 }
+local function FixCanvas(scroll, layout, pad)
+pad = pad or 10
+local function update()
+if scroll and layout then
+scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + pad)
+end
+end
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(update)
+update()
+end
 local function MakeThemeUnique(themeTable)
 local seen = {}
 local newTheme = {}
@@ -803,11 +813,25 @@ BorderSizePixel = 0,
 ZIndex = 2
 })
 MakeDraggable(Topbar, MainFrame)
+local iconOffset = 15
+if options.Icon and options.Icon ~= "" then
+local winIcon = Create("ImageLabel", {
+Parent = Topbar,
+BackgroundTransparency = 1,
+Size = UDim2.new(0, 20, 0, 20),
+Position = UDim2.new(0, 15, 0.5, 0),
+AnchorPoint = Vector2.new(0, 0.5),
+Image = DevLib:GetIcon(options.Icon),
+ImageColor3 = theme.Text,
+ZIndex = 3
+})
+iconOffset = 45
+end
 local TitleLabel = Create("TextLabel", {
 Name = "Title",
 Parent = Topbar,
 BackgroundTransparency = 1,
-Position = UDim2.new(0, 15, 0, 0),
+Position = UDim2.new(0, iconOffset, 0, 0),
 Size = UDim2.new(0, 0, 1, 0),
 AutomaticSize = Enum.AutomaticSize.X,
 Font = Enum.Font.GothamBold,
@@ -821,7 +845,7 @@ local SubTitleLabel = Create("TextLabel", {
 Name = "SubTitle",
 Parent = Topbar,
 BackgroundTransparency = 1,
-Position = UDim2.new(0, 15, 0, 0),
+Position = UDim2.new(0, iconOffset, 0, 0),
 Size = UDim2.new(0, 0, 1, 0),
 AutomaticSize = Enum.AutomaticSize.X,
 Font = Enum.Font.Gotham,
@@ -832,11 +856,11 @@ TextXAlignment = Enum.TextXAlignment.Left,
 ZIndex = 3
 })
 TitleLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 15, 0, 0)
+SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + iconOffset, 0, 0)
 end)
 task.defer(function()
 if TitleLabel and TitleLabel.Parent then
-SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + 15, 0, 0)
+SubTitleLabel.Position = UDim2.new(0, TitleLabel.AbsoluteSize.X + iconOffset, 0, 0)
 end
 end)
 local IconMinAsset = "rbxassetid://11353065410"
@@ -909,14 +933,14 @@ BackgroundTransparency = 1,
 Size = UDim2.new(1, 0, 1, 0),
 ScrollBarThickness = 0,
 CanvasSize = UDim2.new(0, 0, 0, 0),
-AutomaticCanvasSize = Enum.AutomaticSize.Y,
 ZIndex = 3
 })
-Create("UIListLayout", {
+local TabListLayout = Create("UIListLayout", {
 Parent = TabList,
 Padding = UDim.new(0, 5),
 HorizontalAlignment = Enum.HorizontalAlignment.Center
 })
+FixCanvas(TabList, TabListLayout, 10)
 Create("UIPadding", {
 Parent = TabList,
 PaddingTop = UDim.new(0, 10),
@@ -941,47 +965,59 @@ IsMinimized = false
 }
 function WindowObj:AddMinimizeButton(options)
 if type(options) ~= "table" then options = {} end
-local text = options.Text or "DEV"
 local size = options.Size or UDim2.fromOffset(40, 40)
-local pos = options.Position or UDim2.new(1, -60, 1, -60)
+local pos = options.Position or UDim2.new(0, 15, 0, 80)
 local anchor = options.AnchorPoint or Vector2.new(0, 0)
 local visible = options.Visible == nil and true or options.Visible
 local draggable = options.Draggable == nil and true or options.Draggable
-local bgColor = options.BackgroundColor or options.Color or theme.ElementBackground
-local bgTrans = options.BackgroundTransparency or options.Transparency or 0
-local txtTrans = options.TextTransparency or 0
-local font = options.Font or Enum.Font.GothamBold
-local txtSize = options.TextSize or 14
 local image = options.Image or ""
-local imgTrans = options.ImageTransparency or 0
+local text = image == "" and (options.Text or "DEV") or ""
 local radius = options.CornerRadius or 8
-local strokeColor = options.StrokeColor or theme.StrokeColor
 local strokeThick = options.StrokeThickness or 1
-local strokeTrans = options.StrokeTransparency or 0
-local MinGui = Create("ScreenGui", {Parent = GUI_TARGET, ResetOnSpawn = false})
-table.insert(DevLib.Instances, MinGui)
-local btn = Create("TextButton", {
-Parent = MinGui, Size = size, Position = pos, AnchorPoint = anchor,
-BackgroundColor3 = bgColor, BackgroundTransparency = bgTrans,
-Text = image == "" and text or "", TextTransparency = txtTrans,
-Font = font, TextSize = txtSize, Visible = visible, AutoButtonColor = false,
-ClipsDescendants = true
-})
-btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-if DevLib.ThemeObjects[btn] then DevLib.ThemeObjects[btn]["TextColor3"] = nil end
 
-Create("UICorner", {Parent = btn, CornerRadius = UDim.new(0, radius)})
-Create("UIStroke", {Parent = btn, Color = strokeColor, Thickness = strokeThick, Transparency = strokeTrans})
+local MinGui = Instance.new("ScreenGui")
+MinGui.Name = "DevLib_Minimize"
+MinGui.ResetOnSpawn = false
+MinGui.Parent = GUI_TARGET
+table.insert(DevLib.Instances, MinGui)
+
+local btn = Instance.new("TextButton")
+btn.Size = size
+btn.Position = pos
+btn.AnchorPoint = anchor
+btn.BackgroundColor3 = options.BackgroundColor or Color3.fromRGB(15, 15, 15)
+btn.BackgroundTransparency = options.BackgroundTransparency or 0
+btn.Text = text
+btn.TextColor3 = Color3.fromRGB(255, 255, 255) 
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 14
+btn.ClipsDescendants = true
+btn.AutoButtonColor = false
+btn.Visible = visible
+btn.Parent = MinGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, radius)
+corner.Parent = btn
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = options.StrokeColor or Color3.fromRGB(255, 255, 255) 
+stroke.Thickness = strokeThick
+stroke.Parent = btn
+
 if image ~= "" then
-local imgLbl = Create("ImageLabel", {
-Parent = btn, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0),
-Position = UDim2.new(0, 0, 0, 0), AnchorPoint = Vector2.new(0, 0),
-Image = image, ImageTransparency = imgTrans
-})
-imgLbl.ImageColor3 = Color3.fromRGB(255, 255, 255)
-if DevLib.ThemeObjects[imgLbl] then DevLib.ThemeObjects[imgLbl]["ImageColor3"] = nil end
+local img = Instance.new("ImageLabel")
+img.BackgroundTransparency = 1
+img.Size = UDim2.fromScale(0.6, 0.6)
+img.Position = UDim2.fromScale(0.5, 0.5)
+img.AnchorPoint = Vector2.new(0.5, 0.5)
+img.Image = image
+img.ImageColor3 = Color3.fromRGB(255, 255, 255) 
+img.Parent = btn
 end
+
 if draggable then MakeDraggable(btn, btn) end
+
 local lastClick = 0
 btn.MouseButton1Click:Connect(function()
 local now = tick()
@@ -1104,8 +1140,9 @@ local SetTop = Create("Frame", { Parent = SettingsMenu, BackgroundTransparency =
 Create("TextLabel", { Parent = SetTop, BackgroundTransparency = 1, Size = UDim2.new(1, -30, 1, 0), Position = UDim2.new(0, 15, 0, 0), Font = Enum.Font.GothamBold, Text = "Configurações", TextColor3 = theme.Text, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3002 })
 local SetClose = Create("TextButton", { Parent = SetTop, BackgroundTransparency = 1, Size = UDim2.new(0, 40, 0, 40), Position = UDim2.new(1, 0, 0, 0), AnchorPoint = Vector2.new(1, 0), Text = "X", Font = Enum.Font.GothamBold, TextColor3 = theme.Error, TextSize = 16, ZIndex = 3002 })
 SetClose.MouseButton1Click:Connect(function() SettingsMenu.Visible = false end)
-local SetScroll = Create("ScrollingFrame", { Parent = SettingsMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -40), Position = UDim2.new(0, 0, 0, 40), ScrollBarThickness = 2, CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y, ZIndex = 3001 })
-Create("UIListLayout", {Parent = SetScroll, Padding = UDim.new(0, 15), HorizontalAlignment = Enum.HorizontalAlignment.Center})
+local SetScroll = Create("ScrollingFrame", { Parent = SettingsMenu, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -40), Position = UDim2.new(0, 0, 0, 40), ScrollBarThickness = 2, CanvasSize = UDim2.new(0,0,0,0), ZIndex = 3001 })
+local SetScrollLayout = Create("UIListLayout", {Parent = SetScroll, Padding = UDim.new(0, 15), HorizontalAlignment = Enum.HorizontalAlignment.Center})
+FixCanvas(SetScroll, SetScrollLayout, 15)
 Create("UIPadding", {Parent = SetScroll, PaddingTop = UDim.new(0,10), PaddingBottom = UDim.new(0, 15)})
 local function addSetGroup(title, height)
 local frame = Create("Frame", { Parent = SetScroll, BackgroundColor3 = theme.ElementBackground, Size = UDim2.new(1, -30, 0, height), ZIndex = 3002 })
@@ -1121,8 +1158,9 @@ Create("UIStroke", {Parent = ThemeDdFrame, Color = theme.StrokeColor, Thickness 
 local ThemeDdBtn = Create("TextButton", { Parent = ThemeDdFrame, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 35), Text = "", ZIndex = 3004 })
 local ThemeSelLbl = Create("TextLabel", { Parent = ThemeDdBtn, BackgroundTransparency = 1, Size = UDim2.new(1, -30, 1, 0), Position = UDim2.new(0, 10, 0, 0), Font = Enum.Font.Gotham, Text = DevLib.CurrentTheme, TextColor3 = theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3005 })
 DevLib._InternalThemeUpdate = function(newTheme) ThemeSelLbl.Text = newTheme end
-local ThemeDdList = Create("ScrollingFrame", { Parent = ThemeDdFrame, BackgroundTransparency = 1, Size = UDim2.new(1, -10, 0, 100), Position = UDim2.new(0, 5, 0, 40), ScrollBarThickness = 2, CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y, ZIndex = 3005 })
-Create("UIListLayout", {Parent = ThemeDdList, Padding = UDim.new(0,4)})
+local ThemeDdList = Create("ScrollingFrame", { Parent = ThemeDdFrame, BackgroundTransparency = 1, Size = UDim2.new(1, -10, 0, 100), Position = UDim2.new(0, 5, 0, 40), ScrollBarThickness = 2, CanvasSize = UDim2.new(0,0,0,0), ZIndex = 3005 })
+local ThemeDdListLayout = Create("UIListLayout", {Parent = ThemeDdList, Padding = UDim.new(0,4)})
+FixCanvas(ThemeDdList, ThemeDdListLayout, 5)
 local themeDdOpen = false
 ThemeDdBtn.MouseButton1Click:Connect(function()
 themeDdOpen = not themeDdOpen
@@ -1427,14 +1465,14 @@ ScrollBarThickness = 2,
 ScrollBarImageColor3 = theme.StrokeColor,
 Visible = false,
 CanvasSize = UDim2.new(0, 0, 0, 0),
-AutomaticCanvasSize = Enum.AutomaticSize.Y,
 ZIndex = 3
 })
-Create("UIListLayout", {
+local TabContainerLayout = Create("UIListLayout", {
 Parent = TabContainer,
 Padding = UDim.new(0, 10),
 HorizontalAlignment = Enum.HorizontalAlignment.Center
 })
+FixCanvas(TabContainer, TabContainerLayout, 30)
 Create("UIPadding", {
 Parent = TabContainer,
 PaddingTop = UDim.new(0, 15),
@@ -1936,10 +1974,10 @@ Size = UDim2.new(1, -10, 0, 120),
 Position = UDim2.new(0, 5, 0, desc == "" and 47 or 60),
 ScrollBarThickness = 2,
 CanvasSize = UDim2.new(0,0,0,0),
-AutomaticCanvasSize = Enum.AutomaticSize.Y,
 ZIndex = 6
 })
-Create("UIListLayout", { Parent = ListScroll, Padding = UDim.new(0, 4) })
+local ListLayout = Create("UIListLayout", { Parent = ListScroll, Padding = UDim.new(0, 4) })
+FixCanvas(ListScroll, ListLayout, 5)
 local DdObj = { Value = selected }
 local changeCb = cb
 local function upVis()
@@ -2552,11 +2590,11 @@ BackgroundTransparency = 1,
 Size = UDim2.new(1,-10,1,-10),
 Position = UDim2.new(0,5,0,5),
 CanvasSize = UDim2.new(0,0,0,0),
-AutomaticCanvasSize = Enum.AutomaticSize.Y,
 ScrollBarThickness = 2,
 ZIndex = 5
 })
-Create("UIListLayout", { Parent = Scroll, Padding = UDim.new(0,2) })
+local ScrollLayout = Create("UIListLayout", { Parent = Scroll, Padding = UDim.new(0,2) })
+FixCanvas(Scroll, ScrollLayout, 5)
 local obj = {}
 function obj:Log(text, color)
 Create("TextLabel", {
@@ -2595,11 +2633,11 @@ BackgroundTransparency = 1,
 Size = UDim2.new(1,-10,1,-40),
 Position = UDim2.new(0,5,0,5),
 CanvasSize = UDim2.new(0,0,0,0),
-AutomaticCanvasSize = Enum.AutomaticSize.Y,
 ScrollBarThickness = 2,
 ZIndex = 5
 })
-Create("UIListLayout", { Parent = Scroll, Padding = UDim.new(0,2) })
+local ScrollLayout = Create("UIListLayout", { Parent = Scroll, Padding = UDim.new(0,2) })
+FixCanvas(Scroll, ScrollLayout, 5)
 local Input = Create("TextBox", {
 Parent = ConFrame,
 BackgroundColor3 = theme.ElementBackground,
@@ -2913,7 +2951,7 @@ Position=UDim2.new(0,0,0,40),
 AutomaticSize=Enum.AutomaticSize.Y,
 ZIndex=5
 })
-Create("UIListLayout", { Parent = Content, Padding=UDim.new(0,5) })
+local ContentLayout = Create("UIListLayout", { Parent = Content, Padding=UDim.new(0,5) })
 Create("UIPadding", { Parent = Content, PaddingTop=UDim.new(0,5), PaddingBottom=UDim.new(0,5), PaddingLeft=UDim.new(0,15), PaddingRight=UDim.new(0,5) })
 local open = false
 Btn.MouseButton1Click:Connect(function()

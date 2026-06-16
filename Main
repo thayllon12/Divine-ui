@@ -441,7 +441,7 @@ for k, v in pairs(self.Library.Flags) do
 if not self.Ignore[k] then toSave[k] = v end
 end
 pcall(function() writefile(path, HttpService:JSONEncode(toSave)) end)
-self.Library:Notify({Title="SaveManager", Content="Saved config: " .. name})
+self.Library:Notify({Title="SaveManager", Content="Saved config: " .. name, Type="Success"})
 end
 end
 function DevLib.SaveManager:LoadConfig(name)
@@ -457,7 +457,7 @@ else
 self.Library.Flags[k] = v
 end
 end
-self.Library:Notify({Title="SaveManager", Content="Loaded config: " .. name})
+self.Library:Notify({Title="SaveManager", Content="Loaded config: " .. name, Type="Success"})
 end
 end
 end
@@ -466,7 +466,7 @@ if not name or name == "" then return end
 local path = self.Folder.."/"..self.SubFolder.."/"..name..".json"
 if isfile and delfile and isfile(path) then
 pcall(function() delfile(path) end)
-self.Library:Notify({Title="SaveManager", Content="Deleted config: " .. name})
+self.Library:Notify({Title="SaveManager", Content="Deleted config: " .. name, Type="Warning"})
 end
 end
 function DevLib.SaveManager:SetAutoloadConfig(name)
@@ -475,7 +475,7 @@ self:BuildFolder()
 local path = self.Folder.."/"..self.SubFolder.."/Autoload.txt"
 if writefile then
 pcall(function() writefile(path, name) end)
-self.Library:Notify({Title="SaveManager", Content="Autoload set to: " .. name})
+self.Library:Notify({Title="SaveManager", Content="Autoload set to: " .. name, Type="Info"})
 end
 end
 function DevLib.SaveManager:LoadAutoloadConfig()
@@ -542,8 +542,14 @@ if type(options) ~= "table" then options = {} end
 local title = options.Title or "Notification"
 local content = options.Content or ""
 local duration = options.Duration or 5
+local notifType = options.Type or "Info" 
 local activeTheme = DevLib:GetTheme()
 local timeLeft = duration
+local notifColor = activeTheme.Accent
+if notifType == "Success" then notifColor = activeTheme.Success
+elseif notifType == "Error" then notifColor = activeTheme.Error
+elseif notifType == "Warning" then notifColor = activeTheme.Warning
+elseif notifType == "Info" then notifColor = activeTheme.Info end
 if not DevLib.NotificationGui then
 DevLib.NotificationGui = Create("ScreenGui", {
 Name = "DevLibNotifications",
@@ -582,7 +588,7 @@ ClipsDescendants = true,
 ZIndex = 1000
 })
 Create("UICorner", { Parent = notifFrame, CornerRadius = UDim.new(0, 8) })
-Create("UIStroke", { Parent = notifFrame, Color = activeTheme.StrokeColor, Thickness = 1 })
+Create("UIStroke", { Parent = notifFrame, Color = notifColor, Thickness = 1 })
 Create("UIPadding", {
 Parent = notifFrame,
 PaddingTop = UDim.new(0, 15),
@@ -622,7 +628,7 @@ Position = UDim2.new(1, -25, 0, -5),
 AnchorPoint = Vector2.new(1, 0),
 Text = "[" .. tostring(duration) .. "s]",
 Font = Enum.Font.Gotham,
-TextColor3 = activeTheme.Accent,
+TextColor3 = notifColor,
 TextSize = 12,
 TextXAlignment = Enum.TextXAlignment.Right,
 ZIndex = 1002
@@ -652,7 +658,7 @@ BorderSizePixel = 0
 })
 local ProgBar = Create("Frame", {
 Parent = ProgBG,
-BackgroundColor3 = activeTheme.Accent,
+BackgroundColor3 = notifColor,
 Size = UDim2.new(1, 0, 1, 0),
 ZIndex = 1003,
 BorderSizePixel = 0
@@ -1073,90 +1079,105 @@ Blur = Blur,
 OriginalSize = UDim2.new(0, currentWidth, 0, currentHeight),
 IsMinimized = false
 }
-function WindowObj:AddMinimizeButton(options)
-if type(options) ~= "table" then options = {} end
-local size = options.Size or UDim2.fromOffset(40, 40)
-local pos = options.Position or UDim2.new(0, 15, 0, 80)
-local anchor = options.AnchorPoint or Vector2.new(0, 0)
-local visible = options.Visible == nil and true or options.Visible
-local draggable = options.Draggable == nil and true or options.Draggable
-local image = options.Image or ""
-local text = image == "" and (options.Text or "DEV") or ""
-local radius = options.CornerRadius or 8
-local strokeThick = options.StrokeThickness or 1
-local defaultMinimize = options.DefaultMinimize == nil and true or options.DefaultMinimize
-local MinGui = Instance.new("ScreenGui")
-MinGui.Name = "DevLib_Minimize"
-MinGui.ResetOnSpawn = false
-MinGui.Parent = GUI_TARGET
-table.insert(DevLib.Instances, MinGui)
-local btn = Instance.new("ImageButton")
-btn.Size = size
-btn.Position = pos
-btn.AnchorPoint = anchor
-btn.BackgroundColor3 = options.BackgroundColor or Color3.fromRGB(15, 15, 15)
-btn.BackgroundTransparency = options.BackgroundTransparency or 0
-btn.Image = image
-btn.ImageTransparency = options.ImageTransparency or 0
-btn.ImageColor3 = Color3.fromRGB(255, 255, 255)
-btn.AutoButtonColor = false
-btn.ClipsDescendants = true
-btn.Visible = visible
-btn.Parent = MinGui
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, radius)
-corner.Parent = btn
-local stroke = Instance.new("UIStroke")
-stroke.Color = options.StrokeColor or Color3.fromRGB(255, 255, 255) 
-stroke.Thickness = strokeThick
-stroke.Parent = btn
-local txtLbl
-if image == "" and text ~= "" then
-txtLbl = Instance.new("TextLabel")
-txtLbl.Size = UDim2.fromScale(1, 1)
-txtLbl.BackgroundTransparency = 1
-txtLbl.Text = text
-txtLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-txtLbl.Font = Enum.Font.GothamBold
-txtLbl.TextSize = 14
-txtLbl.Parent = btn
+local devSettingsTab = nil
+btnSet.MouseButton1Click:Connect(function()
+if not devSettingsTab then
+devSettingsTab = WindowObj:AddTab({Title = "Settings", Icon = "settings"})
+DevLib.InterfaceManager:BuildInterfaceSection(devSettingsTab)
+DevLib.SaveManager:BuildConfigSection(devSettingsTab)
 end
-if draggable then MakeDraggable(btn, btn) end
-local BtnObj = {
-Button = btn,
-Stroke = stroke,
-Corner = corner,
-TextLabel = txtLbl
-}
-if defaultMinimize then
-local lastClick = 0
-btn.MouseButton1Click:Connect(function()
-local now = tick()
-if now - lastClick < 0.3 then
-local vSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
-local nX = (vSize.X - MainFrame.Size.X.Offset) / 2
-local nY = (vSize.Y - MainFrame.Size.Y.Offset) / 2
-Tween(MainFrame, {Position = UDim2.new(0, nX, 0, nY)}, 0.3, Enum.EasingStyle.Exponential)
-else
-MainFrame.Visible = not MainFrame.Visible
-if useAcrylic and Blur then
-Tween(Blur, {Size = MainFrame.Visible and 15 or 0}, 0.3)
-end
-end
-lastClick = now
+WindowObj:SelectTab(devSettingsTab)
 end)
-end
-function BtnObj:OnClick(cb) btn.MouseButton1Click:Connect(cb) end
-function BtnObj:OnMouseEnter(cb) btn.MouseEnter:Connect(cb) end
-function BtnObj:OnMouseLeave(cb) btn.MouseLeave:Connect(cb) end
-function BtnObj:SetImage(img) self.Button.Image = img end
-function BtnObj:SetVisible(state) self.Button.Visible = state end
-function BtnObj:SetPosition(p) self.Button.Position = p end
-function BtnObj:SetSize(s) self.Button.Size = s end
-function BtnObj:SetProperty(prop, val) pcall(function() self.Button[prop] = val end) end
-function BtnObj:GetProperty(prop) local val pcall(function() val = self.Button[prop] end) return val end
-function BtnObj:Destroy() if MinGui then MinGui:Destroy() end end
-return BtnObj
+function WindowObj:AddMinimizeButton(options)
+    if type(options) ~= "table" then options = {} end
+    local size = options.Size or UDim2.fromOffset(40, 40)
+    local pos = options.Position or UDim2.new(0, 15, 0, 80)
+    local anchor = options.AnchorPoint or Vector2.new(0, 0)
+    local visible = options.Visible == nil and true or options.Visible
+    local draggable = options.Draggable == nil and true or options.Draggable
+    local image = options.Image or ""
+    local text = image == "" and (options.Text or "DEV") or ""
+    local radius = options.CornerRadius or 8
+    local strokeThick = options.StrokeThickness or 1
+    local defaultMinimize = options.DefaultMinimize == nil and true or options.DefaultMinimize
+    local MinGui = Instance.new("ScreenGui")
+    MinGui.Name = "DevLib_Minimize"
+    MinGui.ResetOnSpawn = false
+    MinGui.Parent = GUI_TARGET
+    table.insert(DevLib.Instances, MinGui)
+    local btn = Instance.new("ImageButton")
+    btn.Size = size
+    btn.Position = pos
+    btn.AnchorPoint = anchor
+    btn.BackgroundColor3 = options.BackgroundColor or Color3.fromRGB(15, 15, 15)
+    btn.BackgroundTransparency = options.BackgroundTransparency or 0
+    btn.Image = image
+    btn.ImageTransparency = options.ImageTransparency or 0
+    btn.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    btn.AutoButtonColor = false
+    btn.ClipsDescendants = true
+    btn.Visible = visible
+    btn.Parent = MinGui
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius)
+    corner.Parent = btn
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = options.StrokeColor or Color3.fromRGB(255, 255, 255) 
+    stroke.Thickness = strokeThick
+    stroke.Parent = btn
+    if options.Gradient then
+        local grad = Instance.new("UIGradient")
+        grad.Color = options.Gradient.Color or ColorSequence.new(Color3.new(1,1,1))
+        grad.Rotation = options.Gradient.Rotation or 0
+        grad.Parent = btn
+    end
+    local txtLbl
+    if image == "" and text ~= "" then
+        txtLbl = Instance.new("TextLabel")
+        txtLbl.Size = UDim2.fromScale(1, 1)
+        txtLbl.BackgroundTransparency = 1
+        txtLbl.Text = text
+        txtLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        txtLbl.Font = Enum.Font.GothamBold
+        txtLbl.TextSize = 14
+        txtLbl.Parent = btn
+    end
+    if draggable then MakeDraggable(btn, btn) end
+    local BtnObj = {
+        Button = btn,
+        Stroke = stroke,
+        Corner = corner,
+        TextLabel = txtLbl
+    }
+    if defaultMinimize then
+        local lastClick = 0
+        btn.MouseButton1Click:Connect(function()
+            local now = tick()
+            if now - lastClick < 0.3 then
+                local vSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+                local nX = (vSize.X - MainFrame.Size.X.Offset) / 2
+                local nY = (vSize.Y - MainFrame.Size.Y.Offset) / 2
+                Tween(MainFrame, {Position = UDim2.new(0, nX, 0, nY)}, 0.3, Enum.EasingStyle.Exponential)
+            else
+                MainFrame.Visible = not MainFrame.Visible
+                if useAcrylic and Blur then
+                    Tween(Blur, {Size = MainFrame.Visible and 15 or 0}, 0.3)
+                end
+            end
+            lastClick = now
+        end)
+    end
+    function BtnObj:OnClick(cb) btn.MouseButton1Click:Connect(cb) end
+    function BtnObj:OnMouseEnter(cb) btn.MouseEnter:Connect(cb) end
+    function BtnObj:OnMouseLeave(cb) btn.MouseLeave:Connect(cb) end
+    function BtnObj:SetImage(img) self.Button.Image = img end
+    function BtnObj:SetVisible(state) self.Button.Visible = state end
+    function BtnObj:SetPosition(p) self.Button.Position = p end
+    function BtnObj:SetSize(s) self.Button.Size = s end
+    function BtnObj:SetProperty(prop, val) pcall(function() self.Button[prop] = val end) end
+    function BtnObj:GetProperty(prop) local val pcall(function() val = self.Button[prop] end) return val end
+    function BtnObj:Destroy() if MinGui then MinGui:Destroy() end end
+    return BtnObj
 end
 function WindowObj:Destroy()
 for _, conn in ipairs(DevLib.Connections) do
@@ -1841,7 +1862,21 @@ local desc = options.Description or ""
 local values = options.Values or {}
 local multi = options.Multi or false
 local default = options.Default
-local selected = multi and (type(default) == "table" and default or {}) or default
+local selected
+if multi then
+selected = {}
+if type(default) == "table" then
+for k, v in pairs(default) do
+if type(k) == "number" then
+selected[v] = true
+else
+selected[k] = v
+end
+end
+end
+else
+selected = default
+end
 local cb = options.Callback or function() end
 local isOpen = false
 local DdFrame = Create("Frame", {
@@ -1992,7 +2027,9 @@ end
 end
 function DdObj:SetValue(val)
 if multi and type(val) == "table" then
-for k,v in pairs(val) do selected[k] = v end
+for k,v in pairs(val) do 
+if type(k)=="number" then selected[v]=true else selected[k]=v end 
+end
 else
 selected = val
 end
@@ -3458,7 +3495,7 @@ TextXAlignment=Enum.TextXAlignment.Left,
 ZIndex=4
 })
 end
-function TabObj:AddToast(text) DevLib:Notify({Title="Toast", Content=text, Duration=3}) end
+function TabObj:AddToast(text) DevLib:Notify({Title="Toast", Content=text, Duration=3, Type="Info"}) end
 function TabObj:AddErrorBox(text)
 local F = Create("Frame", {
 Parent = TabContainer,
@@ -3554,7 +3591,7 @@ end
 function TabObj:AddNotificationCenter()
 TabObj:AddButton({
 Title="Trigger Test Notification",
-Callback=function() DevLib:Notify({Title="Center", Content="Notification Center working perfectly!", Duration = 5}) end
+Callback=function() DevLib:Notify({Title="Center", Content="Notification Center working perfectly!", Duration = 5, Type="Success"}) end
 })
 end
 function TabObj:AddThemeEditor()
@@ -3707,9 +3744,9 @@ function TabObj:AddCopyButton(textToCopy)
 TabObj:AddButton({Title = "Copy to Clipboard", Callback = function()
 if setclipboard then
 setclipboard(textToCopy)
-DevLib:Notify({Title="Clipboard", Content="Copied successfully!"})
+DevLib:Notify({Title="Clipboard", Content="Copied successfully!", Type="Success"})
 else
-DevLib:Notify({Title="Error", Content="Executor does not support setclipboard.", Duration=3})
+DevLib:Notify({Title="Error", Content="Executor does not support setclipboard.", Duration=3, Type="Error"})
 end
 end})
 end
@@ -3829,7 +3866,7 @@ end
 TabObj.AddDrawingBoard = TabObj.AddCanvas
 function TabObj:AddColorWheel() TabObj:AddColorpicker({Title="Color Wheel Editor"}) end
 function TabObj:AddColorPalette() TabObj:AddColorpicker({Title="Color Palette"}) end
-function TabObj:AddPinButton() TabObj:AddButton({Title="Pin Window", Callback=function() DevLib:Notify({Title="Pinned", Content="Window pinned to top!"}) end}) end
+function TabObj:AddPinButton() TabObj:AddButton({Title="Pin Window", Callback=function() DevLib:Notify({Title="Pinned", Content="Window pinned to top!", Type="Success"}) end}) end
 TabObj.AddFavoriteButton = TabObj.AddPinButton
 TabObj.AddBookmark = TabObj.AddPinButton
 function TabObj:AddRecentItems() TabObj:AddDropdown({Title="Recent Files", Values={"Config1.json", "Save2.json"}}) end
@@ -3844,7 +3881,7 @@ Title="Save Configuration",
 Description="Saves your current flags to workspace",
 Callback=function()
 DevLib:SaveConfig()
-DevLib:Notify({Title="Config", Content="Saved Config!"})
+DevLib:Notify({Title="Config", Content="Saved Config!", Type="Success"})
 end
 })
 TabObj:AddButton({
@@ -3852,7 +3889,7 @@ Title="Load Configuration",
 Description="Loads previous flags from workspace",
 Callback=function()
 DevLib:LoadConfig()
-DevLib:Notify({Title="Config", Content="Loaded Config!"})
+DevLib:Notify({Title="Config", Content="Loaded Config!", Type="Success"})
 end
 })
 end
